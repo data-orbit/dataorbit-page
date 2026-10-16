@@ -138,79 +138,29 @@ html.sin-diferir .secciones-diferidas > section {
   animation: gridDrift 6s linear infinite;
 }
 
-/* Tríptico "DataOrbit en 1 minuto": al generar el PDF o imprimir,
-   cada panel se imprime como una página A4 vertical independiente (3 páginas en total).
-   Esto permite que en teléfonos móviles (iPhone y Android) el PDF se visualice
-   a pantalla completa, con letra grande y legible, sin necesidad de hacer zoom
-   ni cortes o problemas de escala horizontal. */
-@page {
-  size: 210mm 297mm;
+/* Tríptico "DataOrbit en 1 minuto": al imprimir va sin márgenes y conserva
+   fondos y colores. El tamaño de la página lo fija scripts/pdf-triptico.mjs
+   (ancho de celular y alto del contenido). La página con nombre evita que el
+   formato afecte la impresión del resto del sitio. */
+@page triptico {
   margin: 0;
 }
 
 @media print {
-  * {
-    content-visibility: visible !important;
-  }
-
-  html, body, #root {
-    background-color: #070A12 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    overflow-x: visible !important;
-    overflow-y: visible !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  main {
-    margin: 0 !important;
-    padding: 0 !important;
-    max-width: none !important;
-    overflow: visible !important;
-    height: auto !important;
-  }
-
   .print-triptico {
-    display: block !important;
-    width: 210mm !important;
-    height: auto !important;
-    max-height: none !important;
-    aspect-ratio: auto !important;
-    overflow: visible !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    background-color: #070A12 !important;
+    page: triptico;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    /* Reemplaza las manchas difuminadas de la pantalla con un solo brillo de
+       colores opacos (sin transparencia, blur ni mezcla): el visor de PDF del
+       iPhone dibuja los difuminados y las sombras como cuadrados encima del
+       contenido. */
+    background-color: #070A12;
+    background-image: radial-gradient(circle at 0 0, #0f1f4a 0, #070A12 340px);
   }
-
   .print-triptico * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  .print-page {
-    display: flex !important;
-    flex-direction: column !important;
-    width: 210mm !important;
-    min-height: 297mm !important;
-    height: 297mm !important;
-    max-height: 297mm !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    box-sizing: border-box !important;
-    background-color: #070A12 !important;
-    position: relative !important;
-    overflow: hidden !important;
-  }
-
-  .print-page-break {
-    page-break-after: always !important;
-    break-after: page !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 

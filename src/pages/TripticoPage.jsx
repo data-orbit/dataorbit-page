@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
-  Download,
+  FileText,
   Database,
   Plug,
   Users,
@@ -18,19 +18,20 @@ import {
 } from 'lucide-react';
 
 /**
- * DataOrbit en 1 minuto: un tríptico (A4 horizontal, tres paneles) que explica
- * rápido qué hacemos. No lleva logos de clientes (decisión de Vicente); esos
- * viven en el carrusel del home. La misma hoja se ve en pantalla y se imprime como PDF;
- * los estilos `print:` la ajustan exactamente a 297 x 210 mm.
+ * DataOrbit en 1 minuto: un tríptico (tres paneles) que explica rápido qué
+ * hacemos. No lleva logos de clientes (decisión de Vicente); esos viven en el
+ * carrusel del home. En pantalla grande los paneles van lado a lado; en el
+ * celular y en el PDF van uno bajo el otro, en una sola página del ancho de un
+ * teléfono, para que se lea sin zoom y sin bordes grises.
  *
  * Todo el texto sale del home: misma promesa, mismas etapas y servicios.
  *
- * El PDF descargable (public/dataorbit-en-1-minuto.pdf) se genera desde esta
+ * El PDF (public/dataorbit-en-1-minuto.pdf), que se abre en el navegador, se genera desde esta
  * página con `npm run pdf:triptico`, con el servidor de desarrollo corriendo.
  * Si cambia el contenido, hay que volver a generarlo.
  */
 
-const PDF_PATH = '/dataorbit-en-1-minuto.pdf';
+const PDF_PATH = '/dataorbit-en-1-minuto.pdf?v=6';
 
 // Lo que la IA no resuelve sola (sección "Por qué ahora" del home)
 const whyNow = [
@@ -81,8 +82,8 @@ const contact = [
 
 /** Rótulo de panel: número y título. */
 const PanelTag = ({ num, children }) => (
-  <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-orbit-blue-glow print:text-xs">
-    <span className="font-mono text-slate-500 print:text-slate-400">{num}</span>
+  <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-orbit-blue-glow">
+    <span className="font-mono text-slate-500">{num}</span>
     {children}
     <span className="h-px flex-1 bg-gradient-to-r from-orbit-blue/40 to-transparent" />
   </p>
@@ -109,13 +110,12 @@ export const TripticoPage = () => {
           </Link>
           <a
             href={PDF_PATH}
-            download="dataorbit-en-1-minuto.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex flex-shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-orbit-blue to-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-600/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50 sm:px-5 sm:text-sm"
           >
-            <Download className="h-4 w-4" />
-            Descargar PDF
+            <FileText className="h-4 w-4" />
+            Abrir PDF
           </a>
         </div>
       </header>
@@ -129,106 +129,79 @@ export const TripticoPage = () => {
             </span>
           </h1>
           <p className="mt-3 text-sm text-slate-400 sm:text-base">
-            Lo esencial en tres paneles. Descárgalo en PDF para compartirlo.
+            Lo esencial en tres paneles. Ábrelo en PDF para compartirlo.
           </p>
         </div>
 
-        {/* La hoja: 3 paneles en pantalla (horizontal en desktop, vertical en móvil).
-            Al generar el PDF o imprimir, cada panel es una página vertical completa A4
-            optimizada para lectura clara en celulares sin necesidad de zoom. */}
-        <article className="print-triptico relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#070A12] shadow-[0_40px_120px_-40px_rgba(37,99,235,0.55)] lg:aspect-[297/210] lg:grid-cols-3 print:block print:w-[210mm] print:rounded-none print:border-0 print:shadow-none print:overflow-visible">
-          {/* Fondo técnico en pantalla */}
-          <div className="bg-grid pointer-events-none absolute inset-0 opacity-70 print:hidden" />
+        {/* La hoja: A4 horizontal con tres paneles */}
+        <article className="print-triptico relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#070A12] shadow-[0_40px_120px_-40px_rgba(37,99,235,0.55)] lg:aspect-[297/210] lg:grid-cols-3 print:rounded-none print:border-0 print:shadow-none">
+          {/* Fondo técnico común a los tres paneles. Las manchas difuminadas no van en el
+              PDF: el visor del iPhone las dibuja como cuadrados (ver .print-triptico en index.css) */}
+          <div className="bg-grid pointer-events-none absolute inset-0 opacity-70" />
           <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-orbit-blue/25 blur-[110px] print:hidden" />
           <div className="pointer-events-none absolute -bottom-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-orbit-accent/20 blur-[110px] print:hidden" />
           <div className="pointer-events-none absolute -right-24 top-1/3 h-72 w-72 rounded-full bg-cyan-500/15 blur-[110px] print:hidden" />
 
           {/* Panel 1: quiénes somos */}
-          <section className="print-page print-page-break relative flex flex-col gap-6 p-7 lg:p-8 print:p-[18mm] print:justify-between print:bg-[#070A12] print:text-white">
-            <div className="bg-grid pointer-events-none absolute inset-0 hidden opacity-40 print:block" />
-            <div className="pointer-events-none absolute -left-20 -top-20 hidden h-72 w-72 rounded-full bg-orbit-blue/25 blur-[90px] print:block" />
+          <section className="relative flex flex-col gap-6 p-7 lg:p-8">
+            <img src="/logos/l_do_blanco_2.svg" alt="DataOrbit" className="h-8 w-auto self-start" />
 
-            {/* Cabecera para PDF / Impresión */}
-            <div className="hidden print:flex items-center justify-between pb-4 border-b border-white/10">
-              <img src="/logos/l_do_blanco_2.svg" alt="DataOrbit" className="h-7 w-auto" />
-              <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">DataOrbit en 1 minuto · 1 / 3</span>
-            </div>
-
-            <img src="/logos/l_do_blanco_2.svg" alt="DataOrbit" className="h-8 w-auto self-start print:hidden" />
-
-            <div className="print:my-2">
+            <div>
               <PanelTag num="01">Qué hacemos</PanelTag>
-              <h2 className="mt-4 text-2xl font-extrabold leading-tight tracking-tight lg:text-[28px] print:text-[28px] print:leading-snug print:mt-4">
+              <h2 className="mt-4 text-2xl font-extrabold leading-tight tracking-tight lg:text-[28px]">
                 Preparamos tu empresa para{' '}
-                <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent">operar con IA</span>
+                <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent print:bg-none print:text-sky-400">operar con IA</span>
               </h2>
-              <p className="mt-4 text-[13px] leading-relaxed text-slate-400 print:text-[14.5px] print:leading-relaxed print:text-slate-300 print:mt-4">
+              <p className="mt-4 text-[13px] leading-relaxed text-slate-400">
                 Ordenamos tus datos, conectamos tus sistemas y construimos la plataforma que tu operación
                 necesita. Te acompañamos hasta que la IA trabaja en el día a día, medimos el antes y el después,
                 y respondemos por el resultado.
               </p>
             </div>
 
-            <div className="mt-auto print:mt-2">
-              <p className="mb-3 text-[11px] font-bold uppercase leading-snug tracking-widest text-slate-500 print:text-xs print:tracking-wider print:mb-4 print:text-slate-400">
+            <div className="mt-auto">
+              <p className="mb-3 text-[11px] font-bold uppercase leading-snug tracking-widest text-slate-500">
                 La IA ya escribe código. Lo difícil es que funcione en tu empresa. Para eso hace falta:
               </p>
-              <ul className="space-y-2.5 print:space-y-3.5">
+              <ul className="space-y-2.5">
                 {whyNow.map(({ title, caption, icon: Icon }) => (
-                  <li key={title} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 print:p-4 print:rounded-2xl print:border-white/15 print:bg-white/[0.04]">
-                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-orbit-blue/30 bg-orbit-blue/15 text-orbit-blue-glow print:h-11 print:w-11">
-                      <Icon className="h-4 w-4 print:h-5 print:w-5" />
+                  <li key={title} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
+                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-orbit-blue/30 bg-orbit-blue/15 text-orbit-blue-glow">
+                      <Icon className="h-4 w-4" />
                     </span>
                     <span>
-                      <span className="block text-sm font-bold leading-tight print:text-base">{title}</span>
-                      <span className="block text-[11px] text-slate-400 print:text-[13px] print:text-slate-300 print:mt-0.5">{caption}</span>
+                      <span className="block text-sm font-bold leading-tight">{title}</span>
+                      <span className="block text-[11px] text-slate-400">{caption}</span>
                     </span>
                   </li>
                 ))}
               </ul>
             </div>
-
-            {/* Pie de página solo para PDF / Impresión */}
-            <div className="hidden print:flex items-center justify-between pt-4 mt-auto border-t border-white/10 text-[11px] text-slate-500">
-              <span>dataorbit.cl · IA y datos para empresas</span>
-              <span className="font-mono text-slate-400">Página 1 de 3</span>
-            </div>
           </section>
 
           {/* Panel 2: cómo trabajamos */}
-          <section className="print-page print-page-break relative flex flex-col border-t border-white/10 p-7 lg:border-l lg:border-t-0 lg:p-8 print:p-[18mm] print:justify-between print:border-0 print:bg-[#070A12] print:text-white">
-            <div className="bg-grid pointer-events-none absolute inset-0 hidden opacity-40 print:block" />
-            <div className="pointer-events-none absolute -right-20 top-1/3 hidden h-72 w-72 rounded-full bg-cyan-500/20 blur-[90px] print:block" />
-
-            {/* Cabecera para PDF / Impresión */}
-            <div className="hidden print:flex items-center justify-between pb-4 border-b border-white/10">
-              <img src="/logos/l_do_blanco_2.svg" alt="DataOrbit" className="h-7 w-auto" />
-              <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">DataOrbit en 1 minuto · 2 / 3</span>
-            </div>
-
-            <div className="print:my-2">
-              <PanelTag num="02">Cómo trabajamos</PanelTag>
-              <p className="mt-4 text-[13px] leading-relaxed text-slate-400 print:text-[14.5px] print:leading-relaxed print:text-slate-300 print:mt-4">
-                Partimos conversando con el equipo, construimos sobre tus datos y nos quedamos hasta que la
-                IA se usa en el día a día.
-              </p>
-            </div>
+          <section className="relative flex flex-col border-t border-white/10 p-7 lg:border-l lg:border-t-0 lg:p-8">
+            <PanelTag num="02">Cómo trabajamos</PanelTag>
+            <p className="mt-4 text-[13px] leading-relaxed text-slate-400">
+              Partimos conversando con el equipo, construimos sobre tus datos y nos quedamos hasta que la
+              IA se usa en el día a día.
+            </p>
 
             {/* Línea de tiempo: las tres etapas conectadas */}
-            <ol className="relative mt-6 flex flex-1 flex-col justify-between gap-5 print:my-auto print:gap-7">
-              <span className="absolute bottom-6 left-[19px] top-6 w-px bg-gradient-to-b from-orbit-blue-glow via-orbit-accent to-cyan-400 print:left-[23px]" aria-hidden="true" />
+            <ol className="relative mt-6 flex flex-1 flex-col justify-between gap-5">
+              <span className="absolute bottom-6 left-[19px] top-6 w-px bg-gradient-to-b from-orbit-blue-glow via-orbit-accent to-cyan-400" aria-hidden="true" />
               {stages.map(({ num, title, caption, icon: Icon, services }) => (
-                <li key={num} className="relative flex gap-4 print:gap-5">
-                  <span className="relative z-10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-orbit-blue-glow/60 bg-[#0B1430] text-orbit-blue-glow shadow-[0_0_18px_rgba(96,165,250,0.45)] print:h-12 print:w-12">
-                    <Icon className="h-4 w-4 print:h-5 print:w-5" />
+                <li key={num} className="relative flex gap-4">
+                  <span className="relative z-10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-orbit-blue-glow/60 bg-[#0B1430] text-orbit-blue-glow shadow-[0_0_18px_rgba(96,165,250,0.45)] print:shadow-none">
+                    <Icon className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-mono text-slate-500 print:text-xs">{num}</p>
-                    <p className="text-base font-extrabold leading-tight print:text-lg">{title}</p>
-                    <p className="mt-0.5 text-[11px] leading-snug text-slate-400 print:text-[13px] print:text-slate-300 print:mt-1">{caption}</p>
-                    <ul className="mt-2 flex flex-wrap gap-1.5 print:mt-3 print:gap-2">
+                    <p className="text-[10px] font-mono text-slate-500">{num}</p>
+                    <p className="text-base font-extrabold leading-tight">{title}</p>
+                    <p className="mt-0.5 text-[11px] leading-snug text-slate-400">{caption}</p>
+                    <ul className="mt-2 flex flex-wrap gap-1.5">
                       {services.map((s) => (
-                        <li key={s} className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10.5px] font-medium text-slate-200 print:text-xs print:px-3 print:py-1 print:border-white/15">
+                        <li key={s} className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10.5px] font-medium text-slate-200">
                           {s}
                         </li>
                       ))}
@@ -237,92 +210,51 @@ export const TripticoPage = () => {
                 </li>
               ))}
             </ol>
-
-            {/* Pie de página solo para PDF / Impresión */}
-            <div className="hidden print:flex items-center justify-between pt-4 mt-auto border-t border-white/10 text-[11px] text-slate-500">
-              <span>dataorbit.cl · IA y datos para empresas</span>
-              <span className="font-mono text-slate-400">Página 2 de 3</span>
-            </div>
           </section>
 
           {/* Panel 3: por qué nosotros, EduOrbit y contacto */}
-          <section className="print-page relative flex flex-col gap-6 border-t border-white/10 p-7 lg:border-l lg:border-t-0 lg:p-8 print:p-[18mm] print:justify-between print:border-0 print:bg-[#070A12] print:text-white">
-            <div className="bg-grid pointer-events-none absolute inset-0 hidden opacity-40 print:block" />
-            <div className="pointer-events-none absolute -bottom-20 left-1/3 hidden h-72 w-72 rounded-full bg-orbit-accent/20 blur-[90px] print:block" />
-
-            {/* Cabecera para PDF / Impresión */}
-            <div className="hidden print:flex items-center justify-between pb-4 border-b border-white/10">
-              <img src="/logos/l_do_blanco_2.svg" alt="DataOrbit" className="h-7 w-auto" />
-              <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">DataOrbit en 1 minuto · 3 / 3</span>
-            </div>
-
-            <div className="print:my-1">
+          <section className="relative flex flex-col gap-6 border-t border-white/10 p-7 lg:border-l lg:border-t-0 lg:p-8">
+            <div>
               <PanelTag num="03">Por qué nosotros</PanelTag>
-              <ul className="mt-4 space-y-3 print:mt-4 print:space-y-3.5">
+              <ul className="mt-4 space-y-3">
                 {differentiators.map(({ title, text, icon: Icon }) => (
-                  <li key={title} className="flex gap-3 print:gap-4">
-                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-orbit-blue/30 bg-orbit-blue/15 text-sky-300 print:h-9 print:w-9">
-                      <Icon className="h-4 w-4 print:h-5 print:w-5" />
+                  <li key={title} className="flex gap-3">
+                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-orbit-blue/30 bg-orbit-blue/15 text-sky-300">
+                      <Icon className="h-4 w-4" />
                     </span>
                     <span>
-                      <span className="block text-sm font-bold leading-tight print:text-base">{title}</span>
-                      <span className="mt-0.5 block text-[11.5px] leading-snug text-slate-400 print:text-[13px] print:text-slate-300 print:mt-0.5">{text}</span>
+                      <span className="block text-sm font-bold leading-tight">{title}</span>
+                      <span className="mt-0.5 block text-[11.5px] leading-snug text-slate-400">{text}</span>
                     </span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-emerald-400/25 bg-emerald-500/[0.06] p-4 print:p-4.5 print:rounded-2xl print:border-emerald-400/30 print:my-2">
-              <img src="/logos/logo-eduorbit_blanco.png" alt="EduOrbit 360" className="h-6 w-auto print:h-7" />
-              <p className="mt-2 text-[12px] leading-relaxed text-slate-300 print:text-[13px] print:mt-2.5">
+            <div className="rounded-2xl border border-emerald-400/25 bg-emerald-500/[0.06] p-4">
+              <img src="/logos/logo-eduorbit_blanco.png" alt="EduOrbit 360" className="h-6 w-auto" />
+              <p className="mt-2 text-[12px] leading-relaxed text-slate-300">
                 Visión integral para una educación más eficiente: Business Intelligence para colegios e
                 instituciones educativas.
               </p>
             </div>
 
-            <div className="mt-auto print:mt-2">
-              <p className="text-lg font-extrabold leading-tight print:text-xl">
+            <div className="mt-auto">
+              <p className="text-lg font-extrabold leading-tight">
                 Conversemos{' '}
-                <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent">20 minutos</span>
+                <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent print:bg-none print:text-sky-400">20 minutos</span>
               </p>
-              <ul className="mt-3 space-y-2 print:mt-3 print:space-y-2.5">
+              <ul className="mt-3 space-y-2">
                 {contact.map(({ icon: Icon, text }) => (
-                  <li key={text} className="flex items-center gap-2.5 text-[13px] font-semibold text-slate-200 print:text-sm print:gap-3">
-                    <Icon className="h-4 w-4 flex-shrink-0 text-orbit-blue-glow print:h-4.5 print:w-4.5" />
+                  <li key={text} className="flex items-center gap-2.5 text-[13px] font-semibold text-slate-200">
+                    <Icon className="h-4 w-4 flex-shrink-0 text-orbit-blue-glow" />
                     {text}
                   </li>
                 ))}
               </ul>
             </div>
-
-            {/* Pie de página solo para PDF / Impresión */}
-            <div className="hidden print:flex items-center justify-between pt-4 mt-auto border-t border-white/10 text-[11px] text-slate-500">
-              <span>dataorbit.cl · IA y datos para empresas</span>
-              <span className="font-mono text-slate-400">Página 3 de 3</span>
-            </div>
           </section>
         </article>
-
-        {/* Banner CTA inferior para pantalla / móvil */}
-        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center print:hidden sm:p-8">
-          <h2 className="text-lg font-bold sm:text-xl">¿Prefieres leerlo sin conexión o compartirlo?</h2>
-          <p className="mt-2 text-xs text-slate-400 sm:text-sm">
-            Descarga la versión ejecutiva en PDF (3 paneles organizados verticalmente, optimizados para celular y pantallas).
-          </p>
-          <div className="mt-4 flex justify-center">
-            <a
-              href={PDF_PATH}
-              download="dataorbit-en-1-minuto.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orbit-blue to-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-600/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50 sm:text-sm"
-            >
-              <Download className="h-4 w-4" />
-              Descargar PDF
-            </a>
-          </div>
-        </div>
       </main>
     </div>
   );

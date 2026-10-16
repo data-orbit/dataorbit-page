@@ -100,6 +100,10 @@ SetEnvIfNoCase Host ^(www\.)?dataorbit\.cl$ SITIO_PRINCIPAL
 <FilesMatch "\.html$">
 Header set Cache-Control "no-cache" env=SITIO_PRINCIPAL
 </FilesMatch>
+<FilesMatch "\.pdf$">
+Header set Content-Disposition inline
+Header set Cache-Control "no-cache, must-revalidate"
+</FilesMatch>
 </IfModule>
 
 <IfModule mod_rewrite.c>
