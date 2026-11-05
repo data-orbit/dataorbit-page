@@ -643,6 +643,13 @@ export function iniciar() {
   const secCinetica = $('#cinetica');
   let cineticaVisible = false;
   new IntersectionObserver(([e]) => { cineticaVisible = e.isIntersecting; }, { rootMargin: '120px 0px' }).observe(secCinetica);
+  // Cada cinta repite su texto 4 veces: se mide el largo de una repetición para que el bucle no se note
+  const VEL_CINTA = 45; // px por segundo
+  let tramos = [];
+  const medirCintas = () => { tramos = cintas.map((c) => c.scrollWidth / 4); };
+  medirCintas();
+  addEventListener('resize', medirCintas);
+  document.fonts?.ready.then(medirCintas);
 
   /* ---------- Botones ---------- */
   const NS = 'http://www.w3.org/2000/svg';
@@ -1357,16 +1364,15 @@ void main(){
     const pf = acotar(-rf.top / Math.max(1, rf.height - vh));
     palabras.forEach((w, i) => w.style.setProperty('--k', acotar(pf * 1.1 * palabras.length - i).toFixed(3)));
 
-    // Tipografía cinética: las cintas avanzan con el scroll, se inclinan con la velocidad y engrosan al pasar por el centro
+    // Tipografía cinética: las cintas corren solas y las palabras engrosan al pasar por el centro
     velo += ((y - yAntes) / Math.max(dt, 0.016) - velo) * 0.12;
     yAntes = y;
     if (cineticaVisible) {
-      const rc = secCinetica.getBoundingClientRect();
-      const avance = (vh - rc.top) / (vh + rc.height);
-      const sesgo = reducido ? 0 : acotar(-velo * 0.006, -10, 10);
+      // Corren solas, a velocidad constante (no con el scroll), una hacia cada lado
+      const seg = performance.now() / 1000;
       cintas.forEach((c, i) => {
-        const dir = +c.dataset.dir;
-        c.style.transform = `translateX(${reducido ? -20 : -20 - dir * (avance - 0.5) * 16}%) skewX(${sesgo}deg)`;
+        const dir = +c.dataset.dir, tramo = tramos[i], off = (seg * VEL_CINTA) % tramo;
+        c.style.transform = `translateX(${reducido ? -tramo : dir > 0 ? -tramo - off : -2 * tramo + off}px)`;
         if (reducido) return;
         palabrasCinta[i].forEach((w) => {
           const r = w.getBoundingClientRect();

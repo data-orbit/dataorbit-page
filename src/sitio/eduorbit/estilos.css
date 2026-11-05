@@ -809,3 +809,8 @@ main { position: relative; z-index: 2; }
 .tab:focus-visible, .opt:focus-visible, .chip:focus-visible { outline-offset: -4px; }
 .chip { border-color: var(--filete); }
 .chip[aria-pressed="true"] { font-weight: 500; }
+
+/* Cintas de palabras más chicas y en movimiento propio (pedido del 2026-11-05) */
+.cinta { font-size: clamp(2rem, 5.6vw, 5.2rem); }
+.cinetica { padding-block: 64px; }
+@media (max-width: 859px) { .cinta { font-size: 11vw; } .cinetica { padding-block: 44px; } }
