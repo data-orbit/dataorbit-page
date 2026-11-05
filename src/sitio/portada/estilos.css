@@ -604,7 +604,7 @@ main { position: relative; z-index: 2; }
 .probada .pv-llamado { color: var(--texto-3); }
 .probada .pv-llamado::before { content: "✓"; animation: none; }
 @media (prefers-reduced-motion: reduce) {
-  .invita-cur, .pv-llamado::before, .siguiente, .logos, .guia i { animation: none !important; }
+  .invita-cur, .pv-llamado::before, .siguiente, .logos, .guia i, .vitrina * { animation: none !important; transition: none !important; }
   .guia i { opacity: 1; }
   .carrusel { overflow-x: auto; }
 }
@@ -641,3 +641,104 @@ main { position: relative; z-index: 2; }
 .guia i:nth-child(2) { animation-delay: .18s; }
 .guia i:nth-child(3) { animation-delay: .36s; }
 @keyframes guia { 0%, 100% { opacity: .12; } 40% { opacity: 1; } }
+
+/* «Lo que construimos» como vitrina (pedido del 2026-11-05): a la izquierda los
+   cuatro sistemas, a la derecha una pantalla con el esquema de cada uno que se
+   arma al mostrarse. Recorre sola; al tocar un sistema se queda en él. */
+.vitrina { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 28px 40px; align-items: start; max-width: 1180px; }
+.vit-lista { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.vit-op { position: relative; display: grid; gap: 8px; justify-items: start; padding: 18px 20px 20px; border: 1px solid var(--filete); background: color-mix(in srgb, var(--do-night) 78%, transparent); cursor: pointer; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); transition: border-color .4s, background .4s; }
+.vit-op:hover { border-color: color-mix(in srgb, var(--do-blue-orbit) 50%, transparent); }
+.vit-op.on { border-color: var(--senal); background: color-mix(in srgb, var(--do-blue-orbit) 14%, var(--do-night-2)); }
+.vit-op h3 { margin: 0; }
+.vit-op h3 button { display: flex; align-items: baseline; gap: 14px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.05rem, 1.7vw, 1.35rem); letter-spacing: var(--ls-display); line-height: 1.25; color: var(--texto-3); transition: color .4s; }
+.vit-op.on h3 button, .vit-op:hover h3 button { color: var(--texto); }
+.vit-op h3 button:focus-visible { outline: 2px solid var(--senal); outline-offset: 4px; }
+.vit-num { font-family: var(--font-mono); font-weight: 500; font-size: 11px; color: var(--senal); }
+.vit-op p { margin: 0; padding-left: 32px; color: var(--texto-3); font-size: .95rem; max-height: 0; opacity: 0; overflow: hidden; transition: max-height .6s var(--ease-out), opacity .5s; }
+.vit-op.on p { max-height: 120px; opacity: 1; color: var(--texto-2); }
+.vit-op .tick { margin-left: 32px; }
+.vit-op:not(.on) .tick { display: none; }
+.vit-barra { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--senal); transform: scaleX(0); transform-origin: left; }
+.vitrina.corre .vit-op.on .vit-barra { animation: vitbarra var(--dur-vit, 5200ms) linear both; }
+@keyframes vitbarra { to { transform: scaleX(1); } }
+
+.vit-pant { position: relative; display: grid; gap: 14px; min-height: 330px; padding: 18px 20px 20px; border: 1px solid var(--filete); background: color-mix(in srgb, var(--do-night) 86%, transparent); font-family: var(--font-mono); font-size: 11.5px; color: var(--texto-3); }
+.vit-cab { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--senal); margin: 0; }
+.vit-escena { display: none; gap: 14px; align-content: start; }
+.vit-escena.on { display: grid; }
+.vit-log { margin: 0; color: var(--texto-2); opacity: 0; transform: translateY(6px); }
+.vit-escena.on .vit-log { animation: entra .6s var(--ease-out) 1.8s both; }
+.vit-log .ok { color: var(--senal); }
+.vit-log .al { color: var(--do-warning); }
+
+/* 1 · Planificación */
+.vit-fuentes { display: flex; gap: 8px; flex-wrap: wrap; }
+.vit-fuentes span { padding: 6px 10px; border: 1px solid var(--filete); color: var(--texto-3); }
+.vit-escena.on .vit-fuentes span { animation: fuente .5s var(--ease-out) calc(var(--i) * .22s) both; }
+@keyframes fuente { from { opacity: .2; } to { opacity: 1; border-color: var(--senal); color: var(--texto); } }
+.vit-graf { width: 100%; height: auto; overflow: visible; }
+.vg-eje { stroke: var(--filete); stroke-width: 1; }
+.vg-real { fill: none; stroke: var(--do-white); stroke-width: 2; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.vg-proy { fill: none; stroke: var(--senal); stroke-width: 2; stroke-dasharray: 3 3; opacity: 0; }
+.vg-banda { fill: color-mix(in srgb, var(--do-blue-orbit) 18%, transparent); opacity: 0; }
+.vg-hoy { stroke: var(--texto-4); stroke-dasharray: 2 3; }
+.vg-txt { fill: var(--texto-3); font-family: var(--font-mono); font-size: 9px; }
+.vit-escena.on .vg-real { animation: trazo 1.1s var(--ease-out) .6s forwards; }
+.vit-escena.on .vg-proy, .vit-escena.on .vg-banda { animation: aparece .8s var(--ease-out) 1.5s forwards; }
+@keyframes trazo { to { stroke-dashoffset: 0; } }
+@keyframes aparece { to { opacity: 1; } }
+
+/* 2 · Comercial */
+.vit-embudo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.vit-embudo > div { display: grid; gap: 6px; align-content: start; min-height: 120px; padding: 10px; border: 1px solid var(--filete); }
+.vit-embudo .label { margin: 0 0 4px; color: var(--texto-3); }
+.vc { display: block; padding: 8px; background: var(--do-night-2); border: 1px solid var(--filete); color: var(--texto); font-family: var(--font-display); font-weight: 600; font-size: 12px; }
+.vc-hueco { min-height: 33px; border-style: dashed; background: none; }
+.vit-escena.on .vc-mueve { animation: avanza 1s var(--ease-out) 2.6s both; }
+@keyframes avanza { to { transform: translateX(calc(100% + 26px)); border-color: var(--senal); background: color-mix(in srgb, var(--do-blue-orbit) 18%, var(--do-night-2)); } }
+.vit-escena.on .vl-1 { animation-delay: .9s; }
+.vit-escena.on .vl-2 { animation-delay: 2.2s; }
+
+/* 3 · Stock */
+.vit-stock { position: relative; display: grid; gap: 10px; }
+.vs-cab { display: flex; justify-content: space-between; margin: 0; color: var(--texto-3); }
+.vs-fila { display: grid; grid-template-columns: 92px minmax(0, 1fr) 96px; gap: 12px; align-items: center; color: var(--texto); }
+.vs-fila i { height: 12px; background: var(--senal); transform: scaleX(0); transform-origin: left; width: var(--d); }
+.vs-fila b { font-weight: 500; text-align: right; color: var(--texto-3); opacity: 0; }
+.vs-corto i { background: var(--do-warning); }
+.vs-corto b { color: var(--do-warning); }
+.vit-escena.on .vs-fila i { animation: crece .9s var(--ease-out) calc(.3s + var(--i) * .2s) forwards; }
+.vit-escena.on .vs-fila b { animation: aparece .5s var(--ease-out) calc(1.2s + var(--i) * .2s) forwards; }
+.vit-escena.on .vs-corto b { animation: aparece .5s var(--ease-out) 1.2s forwards, invitar-suave 1.6s var(--ease-out) 1.8s 3; }
+@keyframes crece { to { transform: scaleX(1); } }
+.vs-linea { position: absolute; top: 22px; bottom: 0; left: calc(104px + (100% - 104px - 108px) * .42); border-left: 1px dashed var(--texto-3); }
+
+/* 4 · Educacional */
+.vit-edu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.vit-edu > div { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--filete); opacity: 0; }
+.vit-escena.on .vit-edu > div { animation: entra .6s var(--ease-out) calc(.2s + var(--i) * .18s) both; }
+.vit-edu .label { margin: 0; color: var(--texto-3); }
+.vit-edu b { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; color: var(--texto); }
+.vit-edu svg { width: 100%; height: 24px; }
+.vit-edu polyline { fill: none; stroke: var(--senal); stroke-width: 2; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.vit-escena.on .vit-edu polyline { animation: trazo 1s var(--ease-out) 1s forwards; }
+.ve-barras { display: flex; align-items: flex-end; gap: 4px; height: 24px; }
+.ve-barras i { flex: 1; height: var(--h); background: var(--senal); transform: scaleY(0); transform-origin: bottom; }
+.vit-escena.on .ve-barras i { animation: crecev .7s var(--ease-out) 1.1s forwards; }
+@keyframes crecev { to { transform: scaleY(1); } }
+.ve-pres { display: block; height: 8px; border: 1px solid var(--filete); }
+.ve-pres i { display: block; height: 100%; width: 68%; background: var(--senal); transform: scaleX(0); transform-origin: left; }
+.vit-escena.on .ve-pres i { animation: crece .9s var(--ease-out) 1.3s forwards; }
+
+@media (max-width: 859px) {
+  .vitrina { grid-template-columns: minmax(0, 1fr); }
+  .vit-pant { order: -1; min-height: 0; }
+  .vs-fila { grid-template-columns: 78px minmax(0, 1fr) 84px; gap: 8px; }
+  .vs-linea { left: calc(86px + (100% - 86px - 92px) * .42); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vit-log, .vit-edu > div, .vs-fila b, .vg-proy, .vg-banda { opacity: 1; transform: none; }
+  .vs-fila i, .ve-barras i, .ve-pres i { transform: none; }
+  .vg-real, .vit-edu polyline { stroke-dashoffset: 0; }
+}

@@ -597,6 +597,34 @@ export function iniciar() {
     relojes.push(setTimeout(() => consola.classList.remove('cargando'), t + 150));
   }
 
+  /* ---------- Lo que construimos: vitrina de sistemas ---------- */
+  // Recorre los cuatro sistemas solo; al tocar uno se detiene en él
+  const vit = $('#vitrina'), vitOps = $$('.vit-op', vit), vitEsc = $$('.vit-escena', vit);
+  const DUR_VIT = 5200;
+  let vitI = 0, vitReloj = null, vitAuto = !reducido, vitVisible = false;
+  const verVit = (i) => {
+    vitI = i;
+    vitOps.forEach((o, k) => { o.classList.toggle('on', k === i); $('button', o).setAttribute('aria-selected', String(k === i)); });
+    vitEsc.forEach((e, k) => e.classList.toggle('on', k === i));
+    $('#vit-pant').setAttribute('aria-labelledby', `vit-t${i}`);
+    $('#vit-sis').textContent = $('button', vitOps[i]).textContent.replace(/^\d+/, '');
+  };
+  const reiniciarBarra = () => { vit.classList.remove('corre'); void vit.offsetWidth; if (vitAuto) vit.classList.add('corre'); };
+  const correrVit = () => {
+    clearInterval(vitReloj);
+    if (!vitAuto || !vitVisible) { vit.classList.remove('corre'); return; }
+    reiniciarBarra();
+    vitReloj = setInterval(() => { verVit((vitI + 1) % vitOps.length); reiniciarBarra(); }, DUR_VIT);
+  };
+  vit.style.setProperty('--dur-vit', `${DUR_VIT}ms`);
+  vitOps.forEach((o, k) => o.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
+    vitAuto = false;
+    correrVit();
+    verVit(k);
+  }));
+  new IntersectionObserver(([e]) => { vitVisible = e.isIntersecting; correrVit(); }, { threshold: 0.35 }).observe(vit);
+
   /* ---------- Botones ---------- */
   const NS = 'http://www.w3.org/2000/svg';
   function prepararLlaves(raizLlaves = document) {
