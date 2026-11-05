@@ -173,12 +173,75 @@
     <p class="kicker" data-dec>05 / Lo que construimos</p>
     <h2 class="h2 rv">Sistemas que <span class="sig">planifican y operan.</span></h2>
     <p class="sub">Ejemplos de plataformas a la medida que construimos sobre los datos de cada empresa.</p>
-    <ul class="sis">
-      <li><h3>Planificación y proyección</h3><p>Anticipa lo que viene (producción, ventas o necesidades) cruzando datos que hoy están separados.</p></li>
-      <li><h3>Gestión comercial con IA</h3><p>Clientes, oportunidades y proyecciones en un mismo lugar, con alertas y un asistente que ejecuta.</p></li>
-      <li><h3>Stock, compras y costos</h3><p>Cuánto pedir y cuándo, según lo que se va a vender y lo que demora en llegar.</p></li>
-      <li><h3>Gestión educacional</h3><div><p>Matrícula, asistencia, resultados y finanzas de una institución educativa en un solo lugar.</p><a class="tick" href="/eduorbit" data-telon><span>Conoce EduOrbit 360</span><b aria-hidden="true"><i>→</i><i>→</i></b></a></div></li>
-    </ul>
+    <div class="vitrina" id="vitrina">
+    <ol class="vit-lista" role="tablist" aria-label="Sistemas">
+      <li class="vit-op on">
+        <h3><button type="button" role="tab" id="vit-t0" aria-selected="true" aria-controls="vit-pant"><span class="vit-num">01</span>Planificación y proyección</button></h3>
+        <p>Anticipa lo que viene (producción, ventas o necesidades) cruzando datos que hoy están separados.</p>
+        <i class="vit-barra" aria-hidden="true"></i>
+      </li>
+      <li class="vit-op">
+        <h3><button type="button" role="tab" id="vit-t1" aria-selected="false" aria-controls="vit-pant"><span class="vit-num">02</span>Gestión comercial con IA</button></h3>
+        <p>Clientes, oportunidades y proyecciones en un mismo lugar, con alertas y un asistente que ejecuta.</p>
+        <i class="vit-barra" aria-hidden="true"></i>
+      </li>
+      <li class="vit-op">
+        <h3><button type="button" role="tab" id="vit-t2" aria-selected="false" aria-controls="vit-pant"><span class="vit-num">03</span>Stock, compras y costos</button></h3>
+        <p>Cuánto pedir y cuándo, según lo que se va a vender y lo que demora en llegar.</p>
+        <i class="vit-barra" aria-hidden="true"></i>
+      </li>
+      <li class="vit-op">
+        <h3><button type="button" role="tab" id="vit-t3" aria-selected="false" aria-controls="vit-pant"><span class="vit-num">04</span>Gestión educacional</button></h3>
+        <p>Matrícula, asistencia, resultados y finanzas de una institución educativa en un solo lugar.</p>
+        <a class="tick" href="/eduorbit" data-telon><span>Conoce EduOrbit 360</span><b aria-hidden="true"><i>→</i><i>→</i></b></a>
+        <i class="vit-barra" aria-hidden="true"></i>
+      </li>
+    </ol>
+    <div class="vit-pant" id="vit-pant" role="tabpanel" aria-labelledby="vit-t0">
+      <p class="vit-cab label"><span id="vit-sis">Planificación y proyección</span><span class="ficticio">Esquema ilustrativo · datos ficticios</span></p>
+      <div class="vit-escena on" data-e="0">
+        <div class="vit-fuentes"><span style="--i:0">Ventas</span><span style="--i:1">Producción</span><span style="--i:2">Inventario</span></div>
+        <svg class="vit-graf" viewBox="0 0 320 150" aria-hidden="true">
+          <line class="vg-eje" x1="0" y1="140" x2="320" y2="140"></line>
+          <polygon class="vg-banda" points="190,72 220,56 250,58 280,40 310,34 310,72 280,74 250,88 220,82 190,90"></polygon>
+          <polyline class="vg-real" pathLength="100" points="0,120 32,108 64,114 96,96 128,100 160,84 190,80"></polyline>
+          <polyline class="vg-proy" pathLength="100" points="190,80 220,68 250,72 280,56 310,52"></polyline>
+          <line class="vg-hoy" x1="190" y1="20" x2="190" y2="140"></line>
+          <text class="vg-txt" x="196" y="28">hoy</text>
+          <text class="vg-txt" x="250" y="146">proyección</text>
+        </svg>
+        <p class="vit-log"><span class="ok">[ok]</span> Tres fuentes cruzadas en una sola proyección.</p>
+      </div>
+      <div class="vit-escena" data-e="1">
+        <div class="vit-embudo">
+          <div><p class="label">Prospecto</p><span class="vc">Cliente Norte</span><span class="vc">Cliente Este</span></div>
+          <div><p class="label">Propuesta</p><span class="vc vc-mueve">Cliente Sur</span></div>
+          <div><p class="label">Cierre</p><span class="vc vc-hueco"></span></div>
+        </div>
+        <p class="vit-log vl-1"><span class="al">[ ! ]</span> Cliente Sur: 32 días sin contacto.</p>
+        <p class="vit-log vl-2"><span class="ok">[ok]</span> Asistente: «Agendé el seguimiento para el martes».</p>
+      </div>
+      <div class="vit-escena" data-e="2">
+        <div class="vit-stock">
+          <p class="label vs-cab"><span>Días de cobertura</span><span>Reposición: 12 días</span></p>
+          <div class="vs-fila vs-corto" style="--d:30%;--i:0"><span>Producto A</span><i></i><b>Pedir ahora</b></div>
+          <div class="vs-fila" style="--d:62%;--i:1"><span>Producto B</span><i></i><b>Al día</b></div>
+          <div class="vs-fila" style="--d:84%;--i:2"><span>Producto C</span><i></i><b>Al día</b></div>
+          <span class="vs-linea" aria-hidden="true"></span>
+        </div>
+        <p class="vit-log"><span class="ok">[ok]</span> Cuánto pedir y cuándo, según venta y tiempo de llegada.</p>
+      </div>
+      <div class="vit-escena" data-e="3">
+        <div class="vit-edu">
+          <div style="--i:0"><p class="label">Asistencia</p><b>87,8%</b><svg viewBox="0 0 100 24" aria-hidden="true"><polyline pathLength="100" points="0,8 25,10 50,9 75,14 100,12"></polyline></svg></div>
+          <div style="--i:1"><p class="label">Matrícula</p><b>437 est.</b><svg viewBox="0 0 100 24" aria-hidden="true"><polyline pathLength="100" points="0,18 25,16 50,14 75,12 100,9"></polyline></svg></div>
+          <div style="--i:2"><p class="label">Resultados</p><b>Por curso</b><span class="ve-barras"><i style="--h:60%"></i><i style="--h:80%"></i><i style="--h:45%"></i><i style="--h:70%"></i><i style="--h:90%"></i></span></div>
+          <div style="--i:3"><p class="label">Finanzas</p><b>Presupuesto</b><span class="ve-pres"><i></i></span></div>
+        </div>
+        <p class="vit-log"><span class="ok">[ok]</span> Una institución educativa, en un solo lugar.</p>
+      </div>
+    </div>
+    </div>
   </section>
 
   <section class="confian sec" id="confian" data-nombre="Quiénes confían">
