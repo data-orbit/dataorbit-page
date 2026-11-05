@@ -194,6 +194,13 @@ export function iniciar() {
   const secCinetica = $('#cinetica');
   let cineticaVisible = false;
   new IntersectionObserver(([e]) => { cineticaVisible = e.isIntersecting; }, { rootMargin: '120px 0px' }).observe(secCinetica);
+  // Cada cinta repite su texto 4 veces: se mide el largo de una repetición para que el bucle no se note
+  const VEL_CINTA = 45; // px por segundo
+  let tramos = [];
+  const medirCintas = () => { tramos = cintas.map((c) => c.scrollWidth / 4); };
+  medirCintas();
+  addEventListener('resize', medirCintas);
+  document.fonts?.ready.then(medirCintas);
 
   /* ---------- Comparador ---------- */
   const CMP = [
@@ -379,6 +386,21 @@ export function iniciar() {
     $('#probados-07').textContent = `${hechas}/${total}`;
     if (hechas === total) { $('#invita-07 .invita-fin').hidden = false; $('#invita-07').classList.add('completo'); }
   };
+  // Flechas que parpadean sobre el próximo botón a tocar (llamados a interactuar en 04 y 07)
+  function guiar() {
+    $$('.guia').forEach((f) => f.remove());
+    $$('.opt.siguiente, .pv-botones .mini.siguiente').forEach((b) => {
+      const f = document.createElement('span');
+      f.className = 'guia';
+      f.setAttribute('aria-hidden', 'true');
+      f.innerHTML = '<i></i><i></i><i></i>';
+      f.style.left = `${b.offsetLeft + b.offsetWidth / 2}px`;
+      f.style.top = `${b.offsetTop}px`;
+      b.parentElement.append(f);
+    });
+  }
+  addEventListener('resize', () => guiar());
+  document.fonts?.ready.then(() => guiar());
   const marcar07 = () => {
     // Titila una sola cosa: el próximo botón de la prueba en curso o, si no hay ninguna a
     // medias, la próxima prueba sin tocar
@@ -392,10 +414,14 @@ export function iniciar() {
       const minis = $$('.mini', pv), proximo = minis.find((b) => !b.classList.contains('hecho'));
       minis.forEach((b) => b.classList.toggle('siguiente', activa && b === proximo));
     });
+    guiar();
   };
   const nosPruebas = $('.nos-pruebas');
   nosPruebas.addEventListener('click', () => setTimeout(marcar07, 0));
-  new MutationObserver(marcar07).observe(nosPruebas, { childList: true, subtree: true });
+  const esFlecha = (n) => n.classList?.contains('guia');
+  new MutationObserver((cambios) => {
+    if (cambios.some((c) => [...c.addedNodes, ...c.removedNodes].some((n) => !esFlecha(n)))) marcar07();
+  }).observe(nosPruebas, { childList: true, subtree: true });
   marcar07();
   const esActivo = (el) => el.getAttribute('aria-checked') === 'true';
   const alternar = (el) => el.setAttribute('aria-checked', String(!esActivo(el)));
@@ -529,6 +555,7 @@ export function iniciar() {
     $$('.opt').forEach((o, k) => o.classList.toggle('visto', vistos.has(k)));
     const sig = EJEMPLOS.map((_, k) => (i + 1 + k) % EJEMPLOS.length).find((k) => !vistos.has(k));
     $$('.opt').forEach((o, k) => o.classList.toggle('siguiente', k === sig));
+    guiar();
     $('#vistos-04').textContent = `${vistos.size}/${EJEMPLOS.length}`;
     if (vistos.size === EJEMPLOS.length) { $('#invita-04 .invita-fin').hidden = false; $('#invita-04').classList.add('completo'); }
     $('#p-res').textContent = '> ' + e.p;
@@ -1265,16 +1292,15 @@ void main(){
     const pf = acotar(-rf.top / Math.max(1, rf.height - vh));
     palabras.forEach((w, i) => w.style.setProperty('--k', acotar(pf * 1.1 * palabras.length - i).toFixed(3)));
 
-    // Tipografía cinética: las cintas avanzan con el scroll, se inclinan con la velocidad y engrosan al pasar por el centro
+    // Tipografía cinética: las cintas corren solas y las palabras engrosan al pasar por el centro
     velo += ((y - yAntes) / Math.max(dt, 0.016) - velo) * 0.12;
     yAntes = y;
     if (cineticaVisible) {
-      const rc = secCinetica.getBoundingClientRect();
-      const avance = (vh - rc.top) / (vh + rc.height);
-      const sesgo = reducido ? 0 : acotar(-velo * 0.006, -10, 10);
+      // Corren solas, a velocidad constante (no con el scroll), una hacia cada lado
+      const seg = performance.now() / 1000;
       cintas.forEach((c, i) => {
-        const dir = +c.dataset.dir;
-        c.style.transform = `translateX(${reducido ? -20 : -20 - dir * (avance - 0.5) * 16}%) skewX(${sesgo}deg)`;
+        const dir = +c.dataset.dir, tramo = tramos[i], off = (seg * VEL_CINTA) % tramo;
+        c.style.transform = `translateX(${reducido ? -tramo : dir > 0 ? -tramo - off : -2 * tramo + off}px)`;
         if (reducido) return;
         palabrasCinta[i].forEach((w) => {
           const r = w.getBoundingClientRect();
