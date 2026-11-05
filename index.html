@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logos/nuevo-icono-dataorbit.svg" />
     <link rel="apple-touch-icon" href="/logos/nuevo-icono-dataorbit.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0E0E10" />
     <title>DataOrbit | Preparamos tu empresa para operar con IA</title>
     <meta name="description" content="Ordenamos tus datos, conectamos tus sistemas y construimos plataformas a la medida con IA incorporada. Partimos conversando con tu equipo y medimos el antes y el después." />
     
@@ -24,14 +25,17 @@
     <meta name="twitter:description" content="Ordenamos tus datos, conectamos tus sistemas y construimos plataformas a la medida con IA incorporada. Partimos conversando con tu equipo y medimos el antes y el después." />
     <meta name="twitter:image" content="https://dataorbit.cl/og-dataorbit.png" />
 
-    <!-- Google Fonts -->
+    <!-- Tipografías del sistema de diseño de DataOrbit: Montserrat (títulos y cifras) y Roboto Mono (datos).
+         Los párrafos van en Arial, que no se descarga. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Se carga sin bloquear el primer dibujo (el texto aparece con la fuente del sistema y cambia al cargar) -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&family=Roboto+Mono:wght@400..500&display=swap">
+
+    <!-- Telón entre la portada y EduOrbit: si se llega desde la otra página, la
+         pantalla parte cubierta (antes del primer dibujo) y el guion la abre. -->
+    <script>try { if (sessionStorage.getItem('do-telon')) document.documentElement.classList.add('telon-cubre'); } catch (e) { /* sin almacenamiento: sin telón */ }</script>
   </head>
-  <body class="bg-orbit-dark text-slate-100 font-sans antialiased selection:bg-orbit-blue/30 selection:text-white">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

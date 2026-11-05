@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+// Estilos de Tailwind solo para esta página: la portada y EduOrbit traen los suyos
+import estilosTailwind from '../index.css?inline';
 import {
   ArrowLeft,
   FileText,
@@ -96,18 +97,23 @@ export const TripticoPage = () => {
   }, []);
 
   return (
+    <>
+    <style dangerouslySetInnerHTML={{ __html: estilosTailwind }} />
+    {/* Tipografía propia del tríptico (React la sube al <head>) */}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" precedence="default" />
     <div className="min-h-screen bg-[#05070D] text-white font-sans print:min-h-0 print:bg-[#070A12]">
       {/* Barra superior (no se imprime) */}
       <header className="print:hidden border-b border-white/5 bg-[#070A12]/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
-          <Link
-            to="/"
+          {/* Enlace normal (recarga): la portada arranca su animación al cargar */}
+          <a
+            href="/"
             className="group inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-bold text-white transition hover:text-orbit-blue-glow sm:gap-2"
           >
             <ArrowLeft className="h-4 w-4 text-orbit-blue-glow transition-transform group-hover:-translate-x-1" />
             <span>Volver a</span>
             <img src="/logos/l_do_blanco_2.svg" alt="DataOrbit" className="h-4 w-auto sm:h-5" />
-          </Link>
+          </a>
           <a
             href={PDF_PATH}
             target="_blank"
@@ -257,5 +263,6 @@ export const TripticoPage = () => {
         </article>
       </main>
     </div>
+    </>
   );
 };

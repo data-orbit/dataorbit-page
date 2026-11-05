@@ -17,5 +17,9 @@
 http://www.dataorbit.cl/*   https://dataorbit.cl/:splat  301!
 https://www.dataorbit.cl/*  https://dataorbit.cl/:splat  301!
 
+# Páginas interiores pre-renderizadas
+/eduorbit               /eduorbit.html          200
+/en-1-minuto            /en-1-minuto.html       200
+
 # SPA Fallback: las demás rutas sirven app.html (index.html trae el home pre-renderizado)
 /*                      /app.html               200
