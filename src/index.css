@@ -138,11 +138,11 @@ html.sin-diferir .secciones-diferidas > section {
   animation: gridDrift 6s linear infinite;
 }
 
-/* Tríptico "DataOrbit en 1 minuto": al imprimir, la hoja ocupa un A4
-   horizontal sin márgenes y conserva fondos y colores. La página con nombre
-   evita que el formato afecte la impresión del resto del sitio. */
+/* Tríptico "DataOrbit en 1 minuto": al imprimir va sin márgenes y conserva
+   fondos y colores. El tamaño de la página lo fija scripts/pdf-triptico.mjs
+   (ancho de celular y alto del contenido). La página con nombre evita que el
+   formato afecte la impresión del resto del sitio. */
 @page triptico {
-  size: A4 landscape;
   margin: 0;
 }
 
@@ -151,6 +151,12 @@ html.sin-diferir .secciones-diferidas > section {
     page: triptico;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    /* Reemplaza las manchas difuminadas de la pantalla con un solo brillo de
+       colores opacos (sin transparencia, blur ni mezcla): el visor de PDF del
+       iPhone dibuja los difuminados y las sombras como cuadrados encima del
+       contenido. */
+    background-color: #070A12;
+    background-image: radial-gradient(circle at 0 0, #0f1f4a 0, #070A12 340px);
   }
   .print-triptico * {
     -webkit-print-color-adjust: exact;

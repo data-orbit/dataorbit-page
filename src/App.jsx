@@ -9,7 +9,7 @@ const TripticoPage = lazy(() => import('./pages/TripticoPage').then((m) => ({ de
 
 export function App() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#070A12]" />}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0E0E10' }} />}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/eduorbit" element={<EduOrbitPage />} />

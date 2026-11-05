@@ -100,6 +100,10 @@ SetEnvIfNoCase Host ^(www\.)?dataorbit\.cl$ SITIO_PRINCIPAL
 <FilesMatch "\.html$">
 Header set Cache-Control "no-cache" env=SITIO_PRINCIPAL
 </FilesMatch>
+<FilesMatch "\.pdf$">
+Header set Content-Disposition inline
+Header set Cache-Control "no-cache, must-revalidate"
+</FilesMatch>
 </IfModule>
 
 <IfModule mod_rewrite.c>
@@ -127,6 +131,14 @@ RewriteCond %{HTTP_HOST} ^dataorbit\.cl$ [NC]
 RewriteRule ^contacto/?$ /#contacto [R=301,NE,L]
 RewriteCond %{HTTP_HOST} ^dataorbit\.cl$ [NC]
 RewriteRule ^(feed|comments/feed|wp-login\.php|xmlrpc\.php)/?$ / [R=301,L]
+
+# Páginas interiores pre-renderizadas: llegan con su HTML ya armado. Si alguien
+# entra por el nombre del archivo (/eduorbit.html), se lo lleva a la dirección limpia.
+RewriteCond %{HTTP_HOST} ^dataorbit\.cl$ [NC]
+RewriteCond %{THE_REQUEST} \s/(eduorbit|en-1-minuto)\.html[\s?]
+RewriteRule ^ /%1 [R=301,L]
+RewriteCond %{HTTP_HOST} ^dataorbit\.cl$ [NC]
+RewriteRule ^(eduorbit|en-1-minuto)/?$ /$1.html [L]
 
 # Rutas de la aplicación (React): todo lo que no es un archivo real va a app.html.
 # index.html trae el home pre-renderizado; app.html es la página vacía para el resto.

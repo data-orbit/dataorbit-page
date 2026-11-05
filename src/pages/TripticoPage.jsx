@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+// Estilos de Tailwind solo para esta página: la portada y EduOrbit traen los suyos
+import estilosTailwind from '../index.css?inline';
 import {
   ArrowLeft,
-  Download,
+  FileText,
   Database,
   Plug,
   Users,
@@ -18,19 +19,20 @@ import {
 } from 'lucide-react';
 
 /**
- * DataOrbit en 1 minuto: un tríptico (A4 horizontal, tres paneles) que explica
- * rápido qué hacemos. No lleva logos de clientes (decisión de Vicente); esos
- * viven en el carrusel del home. La misma hoja se ve en pantalla y se imprime como PDF;
- * los estilos `print:` la ajustan exactamente a 297 x 210 mm.
+ * DataOrbit en 1 minuto: un tríptico (tres paneles) que explica rápido qué
+ * hacemos. No lleva logos de clientes (decisión de Vicente); esos viven en el
+ * carrusel del home. En pantalla grande los paneles van lado a lado; en el
+ * celular y en el PDF van uno bajo el otro, en una sola página del ancho de un
+ * teléfono, para que se lea sin zoom y sin bordes grises.
  *
  * Todo el texto sale del home: misma promesa, mismas etapas y servicios.
  *
- * El PDF descargable (public/dataorbit-en-1-minuto.pdf) se genera desde esta
+ * El PDF (public/dataorbit-en-1-minuto.pdf), que se abre en el navegador, se genera desde esta
  * página con `npm run pdf:triptico`, con el servidor de desarrollo corriendo.
  * Si cambia el contenido, hay que volver a generarlo.
  */
 
-const PDF_PATH = '/dataorbit-en-1-minuto.pdf';
+const PDF_PATH = '/dataorbit-en-1-minuto.pdf?v=6';
 
 // Lo que la IA no resuelve sola (sección "Por qué ahora" del home)
 const whyNow = [
@@ -95,25 +97,31 @@ export const TripticoPage = () => {
   }, []);
 
   return (
+    <>
+    <style dangerouslySetInnerHTML={{ __html: estilosTailwind }} />
+    {/* Tipografía propia del tríptico (React la sube al <head>) */}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" precedence="default" />
     <div className="min-h-screen bg-[#05070D] text-white font-sans print:min-h-0 print:bg-[#070A12]">
       {/* Barra superior (no se imprime) */}
       <header className="print:hidden border-b border-white/5 bg-[#070A12]/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
-          <Link
-            to="/"
+          {/* Enlace normal (recarga): la portada arranca su animación al cargar */}
+          <a
+            href="/"
             className="group inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-bold text-white transition hover:text-orbit-blue-glow sm:gap-2"
           >
             <ArrowLeft className="h-4 w-4 text-orbit-blue-glow transition-transform group-hover:-translate-x-1" />
             <span>Volver a</span>
             <img src="/logos/l_do_blanco_2.svg" alt="DataOrbit" className="h-4 w-auto sm:h-5" />
-          </Link>
+          </a>
           <a
             href={PDF_PATH}
-            download
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex flex-shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-orbit-blue to-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-600/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50 sm:px-5 sm:text-sm"
           >
-            <Download className="h-4 w-4" />
-            Descargar PDF
+            <FileText className="h-4 w-4" />
+            Abrir PDF
           </a>
         </div>
       </header>
@@ -127,27 +135,28 @@ export const TripticoPage = () => {
             </span>
           </h1>
           <p className="mt-3 text-sm text-slate-400 sm:text-base">
-            Lo esencial en tres paneles. Descárgalo en PDF para compartirlo.
+            Lo esencial en tres paneles. Ábrelo en PDF para compartirlo.
           </p>
         </div>
 
         {/* La hoja: A4 horizontal con tres paneles */}
-        <article className="print-triptico relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#070A12] shadow-[0_40px_120px_-40px_rgba(37,99,235,0.55)] lg:aspect-[297/210] lg:grid-cols-3 print:grid print:h-[210mm] print:w-[297mm] print:grid-cols-3 print:rounded-none print:border-0 print:shadow-none">
-          {/* Fondo técnico común a los tres paneles */}
+        <article className="print-triptico relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#070A12] shadow-[0_40px_120px_-40px_rgba(37,99,235,0.55)] lg:aspect-[297/210] lg:grid-cols-3 print:rounded-none print:border-0 print:shadow-none">
+          {/* Fondo técnico común a los tres paneles. Las manchas difuminadas no van en el
+              PDF: el visor del iPhone las dibuja como cuadrados (ver .print-triptico en index.css) */}
           <div className="bg-grid pointer-events-none absolute inset-0 opacity-70" />
-          <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-orbit-blue/25 blur-[110px]" />
-          <div className="pointer-events-none absolute -bottom-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-orbit-accent/20 blur-[110px]" />
-          <div className="pointer-events-none absolute -right-24 top-1/3 h-72 w-72 rounded-full bg-cyan-500/15 blur-[110px]" />
+          <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-orbit-blue/25 blur-[110px] print:hidden" />
+          <div className="pointer-events-none absolute -bottom-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-orbit-accent/20 blur-[110px] print:hidden" />
+          <div className="pointer-events-none absolute -right-24 top-1/3 h-72 w-72 rounded-full bg-cyan-500/15 blur-[110px] print:hidden" />
 
           {/* Panel 1: quiénes somos */}
-          <section className="relative flex flex-col gap-6 p-7 lg:p-8 print:p-[9mm]">
+          <section className="relative flex flex-col gap-6 p-7 lg:p-8">
             <img src="/logos/l_do_blanco_2.svg" alt="DataOrbit" className="h-8 w-auto self-start" />
 
             <div>
               <PanelTag num="01">Qué hacemos</PanelTag>
               <h2 className="mt-4 text-2xl font-extrabold leading-tight tracking-tight lg:text-[28px]">
                 Preparamos tu empresa para{' '}
-                <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent">operar con IA</span>
+                <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent print:bg-none print:text-sky-400">operar con IA</span>
               </h2>
               <p className="mt-4 text-[13px] leading-relaxed text-slate-400">
                 Ordenamos tus datos, conectamos tus sistemas y construimos la plataforma que tu operación
@@ -177,7 +186,7 @@ export const TripticoPage = () => {
           </section>
 
           {/* Panel 2: cómo trabajamos */}
-          <section className="relative flex flex-col border-t border-white/10 p-7 lg:border-l lg:border-t-0 lg:p-8 print:border-l print:border-t-0 print:p-[9mm]">
+          <section className="relative flex flex-col border-t border-white/10 p-7 lg:border-l lg:border-t-0 lg:p-8">
             <PanelTag num="02">Cómo trabajamos</PanelTag>
             <p className="mt-4 text-[13px] leading-relaxed text-slate-400">
               Partimos conversando con el equipo, construimos sobre tus datos y nos quedamos hasta que la
@@ -189,7 +198,7 @@ export const TripticoPage = () => {
               <span className="absolute bottom-6 left-[19px] top-6 w-px bg-gradient-to-b from-orbit-blue-glow via-orbit-accent to-cyan-400" aria-hidden="true" />
               {stages.map(({ num, title, caption, icon: Icon, services }) => (
                 <li key={num} className="relative flex gap-4">
-                  <span className="relative z-10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-orbit-blue-glow/60 bg-[#0B1430] text-orbit-blue-glow shadow-[0_0_18px_rgba(96,165,250,0.45)]">
+                  <span className="relative z-10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-orbit-blue-glow/60 bg-[#0B1430] text-orbit-blue-glow shadow-[0_0_18px_rgba(96,165,250,0.45)] print:shadow-none">
                     <Icon className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">
@@ -210,7 +219,7 @@ export const TripticoPage = () => {
           </section>
 
           {/* Panel 3: por qué nosotros, EduOrbit y contacto */}
-          <section className="relative flex flex-col gap-6 border-t border-white/10 p-7 lg:border-l lg:border-t-0 lg:p-8 print:border-l print:border-t-0 print:p-[9mm]">
+          <section className="relative flex flex-col gap-6 border-t border-white/10 p-7 lg:border-l lg:border-t-0 lg:p-8">
             <div>
               <PanelTag num="03">Por qué nosotros</PanelTag>
               <ul className="mt-4 space-y-3">
@@ -239,7 +248,7 @@ export const TripticoPage = () => {
             <div className="mt-auto">
               <p className="text-lg font-extrabold leading-tight">
                 Conversemos{' '}
-                <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent">20 minutos</span>
+                <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent print:bg-none print:text-sky-400">20 minutos</span>
               </p>
               <ul className="mt-3 space-y-2">
                 {contact.map(({ icon: Icon, text }) => (
@@ -254,5 +263,6 @@ export const TripticoPage = () => {
         </article>
       </main>
     </div>
+    </>
   );
 };
