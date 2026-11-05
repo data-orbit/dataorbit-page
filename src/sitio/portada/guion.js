@@ -280,7 +280,7 @@ export function iniciar() {
 
   /* ---------- Mapa vivo: cada etapa en detalle ---------- */
   const ORDEN_SV = ['diagnostico', 'datos', 'plataformas', 'agentes', 'operacion', 'impacto'];
-  const DUR_SV = 7500;
+  const DUR_SV = 4500; // ms por etapa en el recorrido automático
   const mapa = $('#mapa'), mapaVivo = $('#mapa-vivo'), nodosSv = $$('.nodo', mapa), barraSv = $('#cs-barra'), btnAuto = $('#cs-auto');
   let svActual = 0, svAuto = !reducido, svVisible = false, svIntervalo = null, svRelojes = [];
   const verServicio = (i, animar) => {
