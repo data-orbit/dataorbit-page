@@ -613,7 +613,6 @@ main { position: relative; z-index: 2; }
 @keyframes invitar-suave { 50% { border-color: color-mix(in srgb, var(--do-blue-orbit) 55%, transparent); background: color-mix(in srgb, var(--do-blue-orbit) 7%, var(--do-night-2)); } }
 @keyframes invitar-borde { 50% { border-color: color-mix(in srgb, var(--do-blue-orbit) 40%, transparent); } }
 .opt.siguiente, .mini.siguiente { animation: invitar-suave 2.2s var(--ease-out) infinite; }
-.pv-int.siguiente:not(.tocado) { animation: invitar-borde 2.8s var(--ease-out) infinite; }
 
 /* Aprobar en «La IA en acción»: las filas pasan a enviadas y queda la confirmación */
 .filas li.enviada span:last-child { color: var(--do-success); animation: entra .5s var(--ease-out) both; }
