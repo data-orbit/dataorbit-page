@@ -402,17 +402,10 @@ export function iniciar() {
   addEventListener('resize', () => guiar());
   document.fonts?.ready.then(() => guiar());
   const marcar07 = () => {
-    // Titila una sola cosa: el próximo botón de la prueba en curso o, si no hay ninguna a
-    // medias, la próxima prueba sin tocar
-    const pruebas = $$('.pv-int');
-    const aMedias = (pv) => pv.classList.contains('tocado') && $$('.mini', pv).some((b) => !b.classList.contains('hecho'));
-    const enCurso = pruebas.find(aMedias);
-    const pendiente = enCurso ? null : pruebas.find((pv) => !pv.classList.contains('tocado'));
-    pruebas.forEach((pv) => {
-      pv.classList.toggle('siguiente', pv === pendiente);
-      const activa = pv === enCurso || pv === pendiente;
+    // Cada prueba es independiente: en cada una se marca solo su próximo botón por tocar
+    $$('.pv-int').forEach((pv) => {
       const minis = $$('.mini', pv), proximo = minis.find((b) => !b.classList.contains('hecho'));
-      minis.forEach((b) => b.classList.toggle('siguiente', activa && b === proximo));
+      minis.forEach((b) => b.classList.toggle('siguiente', b === proximo));
     });
     guiar();
   };
