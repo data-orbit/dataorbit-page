@@ -289,16 +289,23 @@ export function iniciar() {
     },
   });
 
-  /* ---------- La pregunta: se enciende palabra por palabra con el scroll ---------- */
+  /* ---------- La pregunta: se enciende sola, palabra por palabra, al entrar en pantalla ---------- */
+  // Antes dependía del scroll; ahora aparece sola (pedido de Vicente, 2026-11-09, igual que en la portada)
   const scrub = $('#scrub');
-  [['¿Cuánto tiempo invierten en', false], ['generar reportes y consolidar datos?', true]].forEach(([txt, sig]) => txt.split(' ').forEach((w) => {
+  let nScrub = 0;
+  [['¿Cuánto tiempo invierten en', false], ['generar reportes y consolidar datos?', true]].forEach(([txt, sig], f) => txt.split(' ').forEach((w) => {
     const s = document.createElement('span');
     s.className = sig ? 'w sig' : 'w';
     s.textContent = w;
+    s.style.setProperty('--n', nScrub + f * 3);
+    nScrub += 1;
     s.setAttribute('aria-hidden', 'true');
     scrub.append(s, ' ');
   }));
-  const palabras = $$('.w', scrub);
+  if (reducido) scrub.classList.add('vivo');
+  else new IntersectionObserver(([e], obs) => {
+    if (e.isIntersecting) { scrub.classList.add('vivo'); obs.disconnect(); }
+  }, { threshold: 0.6 }).observe(scrub);
 
   /* ---------- 02 Nuestra solución: cuatro pasos encadenados ---------- */
   const cadena = $('#cadena'), nodosCad = $$('.cadena-nodo', cadena), cps = $$('.cp', cadena), hecho = $('#cad-hecho');
@@ -594,6 +601,19 @@ export function iniciar() {
   /* ---------- 06 Caso real: el presupuesto que se arma solo ---------- */
   const caso = $('#caso-edu'), entradas = $$('.esq-entrada', caso), partidas = $$('.esq-linea', caso), estadoP = $('#esq-estado'), btnGenerar = $('#generar');
   let relojesP = [];
+  // Instrucción sobre el botón (pedido de Vicente, 2026-11-09): que se entienda que hay que hacer clic
+  const guiaCaso = document.createElement('p');
+  guiaCaso.className = 'pv-guia label';
+  guiaCaso.setAttribute('aria-live', 'polite');
+  $('.esq-controles', caso).before(guiaCaso);
+  const CLIC = tactil ? 'Toca' : 'Haz clic en';
+  // modo: 'invita' (titila el botón), 'corre' (mientras se genera) o 'lista' (terminado)
+  const guiarCaso = (txt, modo = 'invita') => {
+    guiaCaso.textContent = txt;
+    guiaCaso.classList.toggle('corre', modo === 'corre');
+    guiaCaso.classList.toggle('lista', modo === 'lista');
+    btnGenerar.classList.toggle('siguiente', modo === 'invita');
+  };
   const ponerEstado = (t) => {
     estadoP.dataset.txt = t;
     if (reducido) estadoP.textContent = t;
@@ -608,16 +628,19 @@ export function iniciar() {
     ponerEstado('En espera');
     btnGenerar.textContent = 'Generar presupuesto';
     btnGenerar.classList.remove('hecho');
+    guiarCaso(`${CLIC} «Generar presupuesto» y mira cómo se arma con los datos ya integrados ↓`);
   };
   const terminarCaso = () => {
     caso.classList.remove('procesando');
     caso.classList.add('listo');
     ponerEstado('Generado');
     btnGenerar.textContent = 'Generar de nuevo';
+    guiarCaso(`Listo. ${CLIC} «Generar de nuevo» para verlo otra vez`, 'lista');
   };
   const generarCaso = () => {
     reiniciarCaso();
     btnGenerar.classList.add('hecho');
+    guiarCaso('Generando el presupuesto con los datos de matrícula, dotación, asistencia y finanzas…', 'corre');
     if (reducido) { entradas.concat(partidas).forEach((el) => el.classList.add('on')); terminarCaso(); return; }
     let t = 200;
     entradas.forEach((el) => { relojesP.push(setTimeout(() => el.classList.add('on'), t)); t += 260; });
@@ -966,23 +989,10 @@ export function iniciar() {
     }
   }
 
-  // Vista de las figuras: ASCII o puntos (la elección queda en este navegador)
-  const vista = { ascii: true };
-  try { vista.ascii = localStorage.getItem('do-vista') !== 'puntos'; } catch (e) { /* sin almacenamiento: queda ASCII */ }
+  // Vista de las figuras: solo puntos (pedido de Vicente, 2026-11-09). El modo ASCII queda en el
+  // código por si se quiere volver, pero sin botón para activarlo.
+  const vista = { ascii: false };
   let redibujar = false;
-  const btnVista = $('#vista');
-  const rotularVista = () => {
-    btnVista.textContent = vista.ascii ? 'ASCII' : 'Puntos';
-    btnVista.setAttribute('aria-pressed', String(vista.ascii));
-    btnVista.setAttribute('aria-label', vista.ascii ? 'Figuras en ASCII. Cambiar a puntos' : 'Figuras en puntos. Cambiar a ASCII');
-  };
-  btnVista.addEventListener('click', () => {
-    vista.ascii = !vista.ascii;
-    try { localStorage.setItem('do-vista', vista.ascii ? 'ascii' : 'puntos'); } catch (e) { /* sin almacenamiento */ }
-    rotularVista();
-    redibujar = true;
-  });
-  rotularVista();
 
   const lienzo = $('#gl');
   try {
@@ -1287,9 +1297,7 @@ void main(){
   } catch (err) {
     console.warn(err);
     pintarGL = null;
-    raiz.classList.add('sin-gl');
-    btnVista.hidden = true;
-  }
+    raiz.classList.add('sin-gl');  }
 
   /* ---------- Recorrido ---------- */
   const CAM = {
@@ -1337,7 +1345,7 @@ void main(){
     return { a: u, b: u, m: 0 };
   };
 
-  const finW = $('#fin-w'), fin = $('#cierre'), pie = $('#pie'), bar = $('#bar'), secFrase = $('#pregunta');
+  const finW = $('#fin-w'), fin = $('#cierre'), pie = $('#pie'), bar = $('#bar');
   const tRec = $('#t-rec'), tEsc = $('#t-esc'), tHora = $('#t-hora'), tPts = $('#t-pts'), tFps = $('#t-fps'), prog = $('#prog');
   const horaChile = new Intl.DateTimeFormat('es-CL', { timeZone: 'America/Santiago', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   const nf = new Intl.NumberFormat('es-CL');
@@ -1358,11 +1366,6 @@ void main(){
     ys += (y - ys) * (reducido ? 1 : 1 - Math.exp(-dt * 3.4));
     cuadros += 1;
     bar.classList.toggle('lejos', y > 90);
-
-    // La pregunta se enciende palabra por palabra mientras la escena queda fija
-    const rf = secFrase.getBoundingClientRect();
-    const pf = acotar(-rf.top / Math.max(1, rf.height - vh));
-    palabras.forEach((w, i) => w.style.setProperty('--k', acotar(pf * 1.1 * palabras.length - i).toFixed(3)));
 
     // Tipografía cinética: las cintas corren solas y las palabras engrosan al pasar por el centro
     velo += ((y - yAntes) / Math.max(dt, 0.016) - velo) * 0.12;

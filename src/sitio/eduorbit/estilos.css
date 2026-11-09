@@ -133,9 +133,8 @@ main { position: relative; z-index: 2; }
 .nav a:hover { color: var(--senal); }
 .nav a:focus-visible { outline: 2px solid var(--senal); outline-offset: 3px; }
 .bar-cta { transition: opacity .4s, transform .4s; }
-.bar.lejos .nav, .bar.lejos .bar-cta { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+/* El menú queda siempre a la vista al bajar (pedido de Vicente, 2026-11-09) */
 .bar.lejos .logo svg { width: 84px; height: 15px; }
-.bar.lejos:hover .nav, .bar.lejos:hover .bar-cta, .bar.lejos:focus-within .nav, .bar.lejos:focus-within .bar-cta { opacity: 1; transform: none; pointer-events: auto; }
 
 /* Riel: el hilo y su marcador */
 .rail { position: fixed; right: max(16px, env(safe-area-inset-right, 0px), 1.6vw); top: 50%; transform: translateY(-50%); z-index: 7; display: grid; justify-items: end; }
@@ -159,10 +158,11 @@ main { position: relative; z-index: 2; }
 @keyframes subir { from { opacity: .3; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* Frase que se enciende con el scroll */
-.frase { height: 220vh; }
+.frase { min-height: 100vh; }
 .pin { position: sticky; top: 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; gap: 24px; padding-block: 88px 56px; }
 .scrub { font-family: var(--font-display); font-weight: 300; font-size: clamp(2rem, 5.2vw, 5rem); line-height: 1.1; letter-spacing: var(--ls-display); color: var(--texto); max-width: 17ch; }
-.scrub .w { display: inline-block; opacity: calc(.2 + .8 * var(--k, 0)); transform: translateY(calc((1 - var(--k, 0)) * .12em)); }
+.scrub .w { display: inline-block; opacity: .12; transform: translateY(.18em); transition: opacity .8s var(--ease-out), transform .8s var(--ease-out); transition-delay: calc(var(--n, 0) * 140ms); }
+.scrub.vivo .w { opacity: 1; transform: none; }
 
 /* Comparador: la misma pregunta sin y con cada condición */
 .conds { padding-block: 40px 130px; display: grid; gap: 22px; }
@@ -470,7 +470,7 @@ main { position: relative; z-index: 2; }
 .pie a:focus-visible, .pie .lnk:focus-visible { outline: 2px solid var(--senal); outline-offset: 3px; }
 .pie-dato { font-size: 15px; line-height: 1.6; color: var(--texto); }
 .pie-desc { max-width: 52ch; color: var(--texto-2); font-size: 1.02rem; }
-.pie-marca { width: 100%; height: auto; aspect-ratio: 445.4 / 77.1; display: block; }
+.pie-marca { width: min(240px, 60%); height: auto; aspect-ratio: 445.4 / 77.1; display: block; }
 .pie-base { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 28px; color: var(--texto-3); }
 .pie-base .tick { color: var(--texto); padding-block: 6px; }
 
@@ -509,7 +509,7 @@ main { position: relative; z-index: 2; }
   .h1 { font-size: min(9.2vw, 9.6vh); }
   .hero { padding-bottom: 96px; }
   .hero .acciones .key { display: none; }
-  .frase { height: 180vh; }
+  .frase { min-height: 100vh; }
   .etapas { height: 320vh; }
   .pin { gap: 14px; padding-block: 72px 96px; }
   .cmp { grid-template-columns: minmax(0, 1fr); }
@@ -814,3 +814,20 @@ main { position: relative; z-index: 2; }
 .cinta { font-size: clamp(2rem, 5.6vw, 5.2rem); }
 .cinetica { padding-block: 64px; }
 @media (max-width: 859px) { .cinta { font-size: 11vw; } .cinetica { padding-block: 44px; } }
+
+/* Caso real: instrucción sobre el botón para que se entienda que hay que hacer clic
+   (pedido de Vicente, 2026-11-09, igual que las pruebas de «¿Por qué nosotros?» en la portada) */
+.esquema .pv-guia { grid-column: 1 / -1; }
+.pv-guia { display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 10px; color: var(--senal); font-size: 11px; border-left: 2px solid var(--senal); background: color-mix(in srgb, var(--do-blue-orbit) 9%, transparent); }
+.pv-guia::before { content: "▸"; display: inline-block; animation: empuja-guia 1.1s var(--ease-out) infinite; }
+.pv-guia.corre { color: var(--texto-2); }
+.pv-guia.corre::before { content: "…"; animation: none; }
+.pv-guia.lista { color: var(--texto-3); border-left-color: var(--filete); background: none; }
+.pv-guia.lista::before { content: "✓"; animation: none; color: var(--senal); }
+@keyframes empuja-guia { 50% { transform: translateX(5px); } }
+@keyframes invitar-guia { 50% { border-color: color-mix(in srgb, var(--do-blue-orbit) 55%, transparent); background: color-mix(in srgb, var(--do-blue-orbit) 7%, var(--do-night-2)); } }
+.mini.siguiente { animation: invitar-guia 2.2s var(--ease-out) infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .pv-guia::before, .mini.siguiente { animation: none !important; }
+  .scrub .w { transition: none !important; }
+}

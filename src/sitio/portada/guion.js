@@ -173,16 +173,26 @@ export function iniciar() {
     decodificar(rot, PALABRAS[palabra], { dura: 1400 });
   }, 4600), 3600);
 
-  // Frase que se enciende palabra por palabra con el scroll
+  // Frases que se encienden solas, palabra por palabra, al entrar en pantalla (sin depender del scroll)
+  const encenderSola = (el) => {
+    if (reducido) { el.classList.add('vivo'); return; }
+    new IntersectionObserver(([e], obs) => {
+      if (e.isIntersecting) { el.classList.add('vivo'); obs.disconnect(); }
+    }, { threshold: 0.6 }).observe(el);
+  };
   const scrub = $('#scrub');
-  [['La IA ya escribe código.', false], ['Lo difícil es que funcione en tu empresa.', true]].forEach(([txt, sig]) => txt.split(' ').forEach((w) => {
+  let nScrub = 0;
+  [['La IA ya escribe código.', false], ['Lo difícil es que funcione en tu empresa.', true]].forEach(([txt, sig], f) => txt.split(' ').forEach((w) => {
     const s = document.createElement('span');
     s.className = sig ? 'w sig' : 'w';
     s.textContent = w;
+    // Pausa breve entre la primera y la segunda frase
+    s.style.setProperty('--n', nScrub + f * 3);
+    nScrub += 1;
     s.setAttribute('aria-hidden', 'true');
     scrub.append(s, ' ');
   }));
-  const palabras = $$('.w', scrub);
+  encenderSola(scrub);
 
   /* ---------- Tipografía cinética ---------- */
   const cintas = $$('.cinta');
@@ -204,13 +214,13 @@ export function iniciar() {
 
   /* ---------- Comparador ---------- */
   const CMP = [
-    { tema: 'Datos ordenados', sin: 'Sin datos ordenados', con: 'Con los datos ordenados', q: '¿Cuánto vendimos en septiembre?',
+    { tema: 'Datos ordenados', bajada: 'Que sepa de dónde sale cada número.', sin: 'Sin datos ordenados', con: 'Con los datos ordenados', q: '¿Cuánto vendimos en septiembre?',
       sinR: 'USD 1.240.000', sinM: '[ ! ] Sin fuente. No cuadra con contabilidad.', conR: 'USD 982.400', conM: '[ ok ] Fuente: ERP, venta neta sin notas de crédito.',
       sinTxt: 'La IA se equivoca con total seguridad.', conTxt: 'La IA responde con los números correctos, porque sabe de dónde salen.', gana: 'Respuestas que puedes verificar' },
-    { tema: 'Conexión con tus sistemas', sin: 'Sin conexión a tus sistemas', con: 'Conectada con resguardos', q: 'Repón el stock del producto A.',
+    { tema: 'Conexión con tus sistemas', bajada: 'Que haga el trabajo, no solo lo sugiera.', sin: 'Sin conexión a tus sistemas', con: 'Conectada con resguardos', q: 'Repón el stock del producto A.',
       sinR: 'Te sugiero revisar el inventario y crear una orden de compra.', sinM: '[ ! ] No ejecutó nada.', conR: 'Orden de compra creada en borrador: 400 u.', conM: '[ .. ] Espera tu aprobación antes de enviarse.',
       sinTxt: 'La IA solo conversa: no puede hacer nada por ti.', conTxt: 'La IA ejecuta tareas dentro de tus sistemas, y pide aprobación cuando corresponde.', gana: 'Trabajo hecho, no sugerencias' },
-    { tema: 'Tu equipo a bordo', sin: 'Sin tu equipo', con: 'Con el equipo a bordo', q: 'Uso del equipo, 4 semanas hábiles', dias: true,
+    { tema: 'Tu equipo a bordo', bajada: 'Que la usen las personas que la necesitan.', sin: 'Sin tu equipo', con: 'Con el equipo a bordo', q: 'Uso del equipo, 4 semanas hábiles', dias: true,
       sinM: '[ ! ] Se dejó de usar la primera semana.', conM: '[ ok ] Se usa todos los días hábiles.',
       sinTxt: 'La IA queda instalada y nadie la usa.', conTxt: 'La IA se usa todos los días, porque se diseñó sobre cómo trabajan.', gana: 'Una herramienta que se usa todos los días' },
   ];
@@ -227,7 +237,7 @@ export function iniciar() {
       ${sin ? '' : `<p class="gana"><span class="label">Lo que ganas</span><b>${c.gana}</b></p>`}
     </div>`;
   };
-  $('#cmps').innerHTML = CMP.map((c, i) => `<li class="cmp" data-i="${i}"><div class="cmp-tema"><h3>${c.tema}</h3></div>${lado(c, 'sin')}${lado(c, 'con')}</li>`).join('');
+  $('#cmps').innerHTML = CMP.map((c, i) => `<li class="cmp" data-i="${i}"><div class="cmp-tema"><span class="cmp-num" aria-hidden="true">0${i + 1}</span><h3>${c.tema}</h3><p class="cmp-bajada">${c.bajada}</p></div>${lado(c, 'sin')}${lado(c, 'con')}</li>`).join('');
   const jugarCmp = (li) => {
     const c = CMP[+li.dataset.i], sin = $('.lado-sin', li), con = $('.lado-con', li);
     li.classList.add('corre');
@@ -257,26 +267,38 @@ export function iniciar() {
     { n: 'Operar y medir', cap: 'Que la IA se use todos los días, y que el impacto quede demostrado', s: [['Agentes conectados, con resguardos', 'IA que ejecuta'], ['Operación continua y adopción', 'Acompañamiento'], ['Impacto medido', 'Valor verificado']] },
   ];
   const secEtapas = $('#soluciones'), datoEl = $('#etapa-dato');
-  $('#tabs').innerHTML = ETAPAS.map((e, i) => `<button type="button" class="tab label" data-i="${i}">0${i + 1} ${e.n}</button>`).join('');
+  $('#tabs').innerHTML = ETAPAS.map((e, i) => `<button type="button" class="tab label" data-i="${i}"><span class="tab-num">0${i + 1}</span><span class="tab-n">${e.n}</span></button>`).join('');
   const tabs = $$('.tab');
+  // Las etapas cambian con un clic, no con el scroll (pedido de Vicente, 2026-11-09).
+  // Cada etapa tiene su figura de partículas; al cambiar, la figura se transforma.
+  const FORMA_ETAPA = ['cumulos', 'cubo', 'dial'];
+  const cambioEtapa = { de: 'cumulos', a: 'cumulos', t: -1e9 };
+  const vistasEtapa = new Set();
   let etapa = -1;
   function verEtapa(i) {
     if (i === etapa) return;
     const primera = etapa === -1;
+    if (!primera) Object.assign(cambioEtapa, { de: FORMA_ETAPA[etapa], a: FORMA_ETAPA[i], t: performance.now() });
     etapa = i;
     const e = ETAPAS[i];
-    tabs.forEach((t, k) => { t.classList.toggle('on', k === i); t.setAttribute('aria-pressed', k === i); });
+    vistasEtapa.add(i);
+    const sig = ETAPAS.map((_, k) => (i + 1 + k) % ETAPAS.length).find((k) => !vistasEtapa.has(k));
+    tabs.forEach((t, k) => {
+      t.classList.toggle('on', k === i);
+      t.setAttribute('aria-pressed', k === i);
+      t.classList.toggle('visto', vistasEtapa.has(k));
+      t.classList.toggle('siguiente', k === sig);
+    });
+    $('#vistas-03').textContent = `${vistasEtapa.size}/${ETAPAS.length}`;
+    if (vistasEtapa.size === ETAPAS.length) { $('#invita-03 .invita-fin').hidden = false; $('#invita-03').classList.add('completo'); }
+    if (!primera) guiar();
     if (primera) $('#etapa-nom').textContent = e.n;
     else decodificar($('#etapa-nom'), e.n, { dura: 1300 });
     $('#etapa-cap').textContent = e.cap;
     $('#serv').innerHTML = e.s.map(([t, b], k) => `<li style="--i:${k}"><span class="t">${t}</span><span class="b label">${b}</span></li>`).join('');
   }
   verEtapa(0);
-  const DESTINO_ETAPA = [0.12, 0.66, 0.95];
-  tabs.forEach((t) => t.addEventListener('click', () => {
-    const r = secEtapas.getBoundingClientRect(), recorre = r.height - innerHeight;
-    scrollTo({ top: r.top + scrollY + recorre * DESTINO_ETAPA[+t.dataset.i], behavior: reducido ? 'auto' : 'smooth' });
-  }));
+  tabs.forEach((t) => t.addEventListener('click', () => verEtapa(+t.dataset.i)));
 
   /* ---------- Mapa vivo: cada etapa en detalle ---------- */
   const ORDEN_SV = ['diagnostico', 'datos', 'plataformas', 'agentes', 'operacion', 'impacto'];
@@ -355,16 +377,17 @@ export function iniciar() {
   trazarMapa();
 
   /* ---------- ¿Por qué nosotros? ---------- */
-  const secNos = $('#nosotros'), histScrub = $('#hist-scrub');
+  const histScrub = $('#hist-scrub');
   histScrub.textContent = '';
-  histScrub.getAttribute('aria-label').split(' ').forEach((w) => {
+  histScrub.getAttribute('aria-label').split(' ').forEach((w, k) => {
     const s = document.createElement('span');
     s.className = 'w';
     s.textContent = w;
+    s.style.setProperty('--n', k);
     s.setAttribute('aria-hidden', 'true');
     histScrub.append(s, ' ');
   });
-  const palabrasHist = $$('.w', histScrub);
+  encenderSola(histScrub);
   /* ---------- ¿Por qué nosotros?: demostraciones que la persona maneja ---------- */
   const linea = (log, clase, texto, extra) => {
     const li = document.createElement('li');
@@ -389,7 +412,9 @@ export function iniciar() {
   // Flechas que parpadean sobre el próximo botón a tocar (llamados a interactuar en 04 y 07)
   function guiar() {
     $$('.guia').forEach((f) => f.remove());
-    $$('.opt.siguiente, .pv-botones .mini.siguiente').forEach((b) => {
+    // La flecha marca lo que está seleccionado: la etapa en 03 y el ejemplo que se ve en 04.
+    // En las pruebas de 07 no va flecha (pedido de Vicente, 2026-11-09): ahí guía el pulso del próximo paso
+    $$('.tab.on, .opt[aria-selected="true"]').forEach((b) => {
       const f = document.createElement('span');
       f.className = 'guia';
       f.setAttribute('aria-hidden', 'true');
@@ -401,21 +426,93 @@ export function iniciar() {
   }
   addEventListener('resize', () => guiar());
   document.fonts?.ready.then(() => guiar());
+  // Instrucción sobre los botones de cada prueba (pedido de Vicente, 2026-11-09): dice en qué paso
+  // vas y qué botón tocar ahora, para que se entienda que hay que ir haciendo clic en orden
+  const CLIC = tactil ? 'Toca' : 'Haz clic en';
+  const guiaPaso = (pv, minis, proximo) => {
+    let g = $('.pv-guia', pv);
+    if (!g) {
+      g = document.createElement('p');
+      g.className = 'pv-guia label';
+      g.setAttribute('aria-live', 'polite');
+      $('.pv-botones', pv).before(g);
+    }
+    const nombre = (b) => `«${b.textContent.replace(/^\d\s·\s/, '').split(':')[0]}»`;
+    let txt;
+    if (minis.length === 1) {
+      txt = proximo ? `${CLIC} ${nombre(proximo)} y mira qué hace el agente ↓` : 'Ahora apaga un permiso y mira cómo cambia lo que hace';
+    } else {
+      const hechos = minis.filter((b) => b.classList.contains('hecho')).length;
+      txt = proximo ? `Paso ${hechos + 1} de ${minis.length} · ${CLIC} ${nombre(proximo)} ↓` : 'Listo. Puedes reiniciar y probar saltarte un paso';
+    }
+    if (g.textContent !== txt) g.textContent = txt;
+    g.classList.toggle('lista', !proximo);
+    // Prueba terminada: queda con ✓ en el recorrido y aparece el botón a la siguiente
+    const pr = pv.closest('.prueba'), k = $$('.prueba').indexOf(pr);
+    pr.classList.toggle('completa', !proximo);
+    $$('.nos-paso')[k]?.classList.toggle('lista', !proximo);
+    const sb = $('.sig-prueba', pr);
+    if (sb) sb.hidden = !!proximo;
+  };
   const marcar07 = () => {
-    // Cada prueba es independiente: en cada una se marca solo su próximo botón por tocar
+    // Cada prueba es independiente: el próximo botón por tocar titila, y la flecha queda sobre el
+    // último paso elegido (o sobre el primero, mientras no se elige ninguno)
     $$('.pv-int').forEach((pv) => {
-      const minis = $$('.mini', pv), proximo = minis.find((b) => !b.classList.contains('hecho'));
+      const minis = $$('.pv-botones .mini', pv), proximo = minis.find((b) => !b.classList.contains('hecho'));
       minis.forEach((b) => b.classList.toggle('siguiente', b === proximo));
+      guiaPaso(pv, minis, proximo);
     });
+    // En las tarjetas de arriba pulsa la próxima prueba sin terminar, después de la que se está viendo
+    const navs = $$('.nos-paso'), act = navs.findIndex((b) => b.classList.contains('on'));
+    const pend = (k) => k !== act && !navs[k].classList.contains('lista');
+    const prox = navs.map((_, k) => k).filter((k) => k > act).find(pend) ?? navs.map((_, k) => k).find(pend);
+    navs.forEach((b, k) => b.classList.toggle('siguiente', k === prox));
     guiar();
   };
   const nosPruebas = $('.nos-pruebas');
-  nosPruebas.addEventListener('click', () => setTimeout(marcar07, 0));
-  const esFlecha = (n) => n.classList?.contains('guia');
+  // Recorrido de 07 (pedido de Vicente, 2026-11-09): una prueba a la vez, con los cuatro
+  // diferenciadores numerados arriba y un botón a la siguiente cuando terminas una
+  const pruebas = $$('.prueba', nosPruebas);
+  const navP = document.createElement('div');
+  navP.className = 'nos-nav';
+  navP.setAttribute('role', 'tablist');
+  navP.setAttribute('aria-label', 'Diferenciadores');
+  navP.innerHTML = pruebas.map((p, i) => `<button type="button" class="nos-paso" role="tab" data-i="${i}"><span class="nos-paso-num">0${i + 1} / 0${pruebas.length}</span><span class="nos-paso-t">${$('h3', p).textContent}</span></button>`).join('');
+  $('.nos-cab', nosPruebas).after(navP);
+  let pruebaI = 0;
+  const verPrueba = (i, enfocar) => {
+    pruebaI = i;
+    pruebas.forEach((p, k) => { p.hidden = k !== i; });
+    $$('.nos-paso', navP).forEach((b, k) => { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', String(k === i)); });
+    marcar07();
+    if (enfocar) navP.scrollIntoView({ block: 'nearest', behavior: reducido ? 'auto' : 'smooth' });
+  };
+  pruebas.forEach((p, i) => {
+    if (i === pruebas.length - 1) return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tick sig-prueba';
+    b.hidden = true;
+    b.innerHTML = `<span>Siguiente: ${$('h3', pruebas[i + 1]).textContent}</span><b aria-hidden="true"><i>→</i><i>→</i></b>`;
+    b.addEventListener('click', () => verPrueba(i + 1, true));
+    p.append(b);
+  });
+  $$('.nos-paso', navP).forEach((b) => b.addEventListener('click', () => verPrueba(+b.dataset.i)));
+  nosPruebas.addEventListener('click', (ev) => {
+    const b = ev.target.closest('.pv-botones .mini'), pv = ev.target.closest('.pv-int');
+    setTimeout(() => {
+      // Solo cuenta como elegido el paso que se aceptó (los fuera de orden avisan y no avanzan)
+      // Paso fuera de orden: el botón tiembla en rojo y el aviso explica por qué no se puede saltar
+      if (b && !b.classList.contains('hecho') && !reducido) { b.classList.remove('rechazo'); void b.offsetWidth; b.classList.add('rechazo'); setTimeout(() => b.classList.remove('rechazo'), 700); }
+      marcar07();
+    }, 0);
+  });
+  // Las flechas y la instrucción las pone marcar07: sus cambios no vuelven a disparar el observador
+  const esFlecha = (n) => n.classList?.contains('guia') || n.classList?.contains('pv-guia');
   new MutationObserver((cambios) => {
-    if (cambios.some((c) => [...c.addedNodes, ...c.removedNodes].some((n) => !esFlecha(n)))) marcar07();
+    if (cambios.some((c) => !c.target.closest?.('.pv-guia') && [...c.addedNodes, ...c.removedNodes].some((n) => !esFlecha(n)))) marcar07();
   }).observe(nosPruebas, { childList: true, subtree: true });
-  marcar07();
+  verPrueba(0);
   const esActivo = (el) => el.getAttribute('aria-checked') === 'true';
   const alternar = (el) => el.setAttribute('aria-checked', String(!esActivo(el)));
 
@@ -916,23 +1013,10 @@ export function iniciar() {
     }
   }
 
-  // Vista de las figuras: ASCII o puntos (la elección queda en este navegador)
-  const vista = { ascii: true };
-  try { vista.ascii = localStorage.getItem('do-vista') !== 'puntos'; } catch (e) { /* sin almacenamiento: queda ASCII */ }
+  // Vista de las figuras: solo puntos (pedido de Vicente, 2026-11-09). El modo ASCII queda en el
+  // código por si se quiere volver, pero sin botón para activarlo.
+  const vista = { ascii: false };
   let redibujar = false;
-  const btnVista = $('#vista');
-  const rotularVista = () => {
-    btnVista.textContent = vista.ascii ? 'ASCII' : 'Puntos';
-    btnVista.setAttribute('aria-pressed', String(vista.ascii));
-    btnVista.setAttribute('aria-label', vista.ascii ? 'Figuras en ASCII. Cambiar a puntos' : 'Figuras en puntos. Cambiar a ASCII');
-  };
-  btnVista.addEventListener('click', () => {
-    vista.ascii = !vista.ascii;
-    try { localStorage.setItem('do-vista', vista.ascii ? 'ascii' : 'puntos'); } catch (e) { /* sin almacenamiento */ }
-    rotularVista();
-    redibujar = true;
-  });
-  rotularVista();
 
   const lienzo = $('#gl');
   try {
@@ -1230,7 +1314,6 @@ void main(){
     console.warn(err);
     pintarGL = null;
     raiz.classList.add('sin-gl');
-    btnVista.hidden = true;
   }
 
   /* ---------- Recorrido ---------- */
@@ -1286,7 +1369,7 @@ void main(){
     return { a: u, b: u, m: 0 };
   };
 
-  const finW = $('#fin-w'), fin = $('#cierre'), pie = $('#pie'), bar = $('#bar'), secFrase = $('#ahora');
+  const finW = $('#fin-w'), fin = $('#cierre'), pie = $('#pie'), bar = $('#bar');
   const tRec = $('#t-rec'), tEsc = $('#t-esc'), tHora = $('#t-hora'), tPts = $('#t-pts'), tFps = $('#t-fps'), prog = $('#prog');
   const horaChile = new Intl.DateTimeFormat('es-CL', { timeZone: 'America/Santiago', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   const nf = new Intl.NumberFormat('es-CL');
@@ -1308,11 +1391,6 @@ void main(){
     cuadros += 1;
     bar.classList.toggle('lejos', y > 90);
 
-    // Frase
-    const rf = secFrase.getBoundingClientRect();
-    const pf = acotar(-rf.top / Math.max(1, rf.height - vh));
-    palabras.forEach((w, i) => w.style.setProperty('--k', acotar(pf * 1.1 * palabras.length - i).toFixed(3)));
-
     // Tipografía cinética: las cintas corren solas y las palabras engrosan al pasar por el centro
     velo += ((y - yAntes) / Math.max(dt, 0.016) - velo) * 0.12;
     yAntes = y;
@@ -1331,19 +1409,18 @@ void main(){
       });
     }
 
-    // Historia: se enciende palabra por palabra mientras la sección cruza la pantalla
-    const rn = secNos.getBoundingClientRect();
-    const pn = acotar((vh * 0.8 - rn.top) / Math.max(1, rn.height * 0.4));
-    palabrasHist.forEach((w, i) => w.style.setProperty('--k', acotar(pn * 1.15 * palabrasHist.length - i).toFixed(3)));
-
-    // Etapas
-    const re = secEtapas.getBoundingClientRect();
-    const pe = acotar(-re.top / Math.max(1, re.height - vh));
-    const etapaAhora = pe < 0.34 ? 0 : pe < 0.67 ? 1 : 2;
-    verEtapa(etapaAhora);
-
     // Forma de las partículas y cámara
     let { a, b, m } = estadoEn(ys);
+    // En Soluciones la figura la elige el clic: «cumulos» marca la sección y se cambia por la de la etapa
+    const etapaAhora = etapa;
+    const formaElegida = FORMA_ETAPA[etapa];
+    if (a === 'cumulos' && b === 'cumulos') {
+      const mc = reducido ? 1 : acotar((ahora - cambioEtapa.t) / 1400);
+      if (mc < 1) { a = cambioEtapa.de; b = cambioEtapa.a; m = mc; } else { a = formaElegida; b = formaElegida; }
+    } else {
+      if (a === 'cumulos') a = formaElegida;
+      if (b === 'cumulos') b = formaElegida;
+    }
     const intro = reducido ? 1 : acotar(ti / 3800);
     let orbIntro = 0;
     if (intro < 1 && y < vh * 0.4) { a = 'espiral'; b = 'logo'; m = curva(intro); orbIntro = 1 - curva(intro); }
