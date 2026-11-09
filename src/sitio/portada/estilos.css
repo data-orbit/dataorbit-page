@@ -133,9 +133,8 @@ main { position: relative; z-index: 2; }
 .nav a:hover { color: var(--senal); }
 .nav a:focus-visible { outline: 2px solid var(--senal); outline-offset: 3px; }
 .bar-cta { transition: opacity .4s, transform .4s; }
-.bar.lejos .nav, .bar.lejos .bar-cta { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+/* El menú queda siempre a la vista al bajar (pedido de Vicente, 2026-11-09) */
 .bar.lejos .logo svg { width: 84px; height: 15px; }
-.bar.lejos:hover .nav, .bar.lejos:hover .bar-cta, .bar.lejos:focus-within .nav, .bar.lejos:focus-within .bar-cta { opacity: 1; transform: none; pointer-events: auto; }
 
 /* Riel: el hilo y su marcador */
 .rail { position: fixed; right: max(16px, env(safe-area-inset-right, 0px), 1.6vw); top: 50%; transform: translateY(-50%); z-index: 7; display: grid; justify-items: end; }
@@ -158,11 +157,12 @@ main { position: relative; z-index: 2; }
 .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 26px; margin-top: 8px; animation: subir 1.7s var(--ease-out) 2.6s both; }
 @keyframes subir { from { opacity: .3; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-/* Frase que se enciende con el scroll */
-.frase { height: 220vh; }
+/* Frase que se enciende sola al entrar en pantalla */
+.frase { min-height: 100vh; }
 .pin { position: sticky; top: 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; gap: 24px; padding-block: 88px 56px; }
 .scrub { font-family: var(--font-display); font-weight: 300; font-size: clamp(2rem, 5.2vw, 5rem); line-height: 1.1; letter-spacing: var(--ls-display); color: var(--texto); max-width: 17ch; }
-.scrub .w { display: inline-block; opacity: calc(.2 + .8 * var(--k, 0)); transform: translateY(calc((1 - var(--k, 0)) * .12em)); }
+.scrub .w { display: inline-block; opacity: .12; transform: translateY(.18em); transition: opacity .8s var(--ease-out), transform .8s var(--ease-out); transition-delay: calc(var(--n, 0) * 140ms); }
+.scrub.vivo .w { opacity: 1; transform: none; }
 
 /* Comparador: la misma pregunta sin y con cada condición */
 .conds { padding-block: 40px 130px; display: grid; gap: 22px; }
@@ -331,7 +331,8 @@ main { position: relative; z-index: 2; }
 .nos-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 40px 64px; align-items: start; max-width: 1100px; }
 .nos-fijo { position: sticky; top: 96px; display: grid; gap: 18px; }
 .hist-scrub { font-family: var(--font-display); font-weight: 300; font-size: clamp(1.5rem, 2.8vw, 2.4rem); line-height: 1.25; letter-spacing: var(--ls-display); color: var(--texto); }
-.hist-scrub .w { opacity: calc(.24 + .76 * var(--k, 0)); }
+.hist-scrub .w { opacity: .14; transition: opacity .7s var(--ease-out); transition-delay: calc(var(--n, 0) * 70ms); }
+.hist-scrub.vivo .w { opacity: 1; }
 .nos-pruebas { display: grid; gap: 56px; }
 .prueba { display: grid; gap: 12px; padding-top: 18px; border-top: 1px solid var(--filete); }
 .prueba h3 { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.15rem, 1.8vw, 1.45rem); letter-spacing: var(--ls-display); line-height: 1.25; color: var(--texto); }
@@ -469,7 +470,7 @@ main { position: relative; z-index: 2; }
 .pie a:focus-visible, .pie .lnk:focus-visible { outline: 2px solid var(--senal); outline-offset: 3px; }
 .pie-dato { font-size: 15px; line-height: 1.6; color: var(--texto); }
 .pie-desc { max-width: 52ch; color: var(--texto-2); font-size: 1.02rem; }
-.pie-marca { width: 100%; height: auto; aspect-ratio: 445.4 / 77.1; display: block; }
+.pie-marca { width: min(240px, 60%); height: auto; aspect-ratio: 445.4 / 77.1; display: block; }
 .pie-base { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 28px; color: var(--texto-3); }
 .pie-base .tick { color: var(--texto); padding-block: 6px; }
 
@@ -497,7 +498,8 @@ main { position: relative; z-index: 2; }
 
 @media (min-width: 1181px) { .sec { padding-right: max(var(--gr), 210px); } }
 @media (max-width: 1180px) { .telem { display: none; } }
-@media (max-width: 1240px) { .nav { display: none; } }
+@media (max-width: 1240px) { .nav { gap: 16px; } .nav a { letter-spacing: .06em; } }
+@media (max-width: 960px) { .nav { display: none; } }
 @media (max-width: 960px) { .rail { display: none; } }
 @media (max-width: 860px) {
   .veil { background: linear-gradient(180deg, transparent 0, color-mix(in srgb, var(--do-night) 5%, transparent) 32%, color-mix(in srgb, var(--do-night) 80%, transparent) 50%, color-mix(in srgb, var(--do-night) 86%, transparent) 100%); }
@@ -509,7 +511,6 @@ main { position: relative; z-index: 2; }
   .hero { padding-bottom: 96px; }
   .hero .acciones .key { display: none; }
   .frase { height: 180vh; }
-  .etapas { height: 320vh; }
   .pin { gap: 14px; padding-block: 72px 96px; }
   .cmp { grid-template-columns: minmax(0, 1fr); }
   .cmp > div { padding: 22px 0; }
@@ -742,3 +743,89 @@ main { position: relative; z-index: 2; }
   .vs-fila i, .ve-barras i, .ve-pres i { transform: none; }
   .vg-real, .vit-edu polyline { stroke-dashoffset: 0; }
 }
+
+/* Feedback de Vicente (2026-11-09) */
+
+/* Tres condiciones: cada una con su número grande, título más fuerte y una bajada
+   de una línea; la fila se marca con una franja azul mientras corre su ejemplo. */
+.cmp-tema { position: relative; display: grid; gap: 10px; align-content: start; }
+.cmp-num { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.6rem, 4.6vw, 4rem); line-height: 1; letter-spacing: var(--ls-display); color: transparent; -webkit-text-stroke: 1.5px var(--senal); transition: color .8s var(--ease-out); }
+.cmp-tema h3 { font-size: clamp(1.45rem, 2.4vw, 2.05rem); }
+.cmp-bajada { color: var(--texto-2); font-size: 1rem; max-width: 24ch; }
+.cmp-tema::before { content: ""; position: absolute; left: -18px; top: 30px; bottom: 32px; width: 2px; background: var(--senal); transform: scaleY(0); transform-origin: top; transition: transform 1.2s var(--ease-out); }
+.cmp.corre .cmp-tema::before { transform: scaleY(1); }
+.cmp.corre .cmp-num { color: var(--senal); }
+@media (max-width: 859px) { .cmp-tema::before { left: -10px; } .cmp-bajada { max-width: none; } }
+
+/* Soluciones: ya no depende del scroll. Una pantalla, tres botones grandes que se
+   eligen con un clic (pedido de Vicente, 2026-11-09). El que falta por ver se enciende
+   y se apaga; la flecha marca el elegido; los vistos llevan ✓. */
+.etapas { height: auto; min-height: 100vh; }
+.etapas .pin { position: relative; }
+.etapas .tabs { gap: 14px; position: relative; padding-top: 42px; }
+.etapas .tab { display: grid; grid-template-columns: auto auto; align-items: baseline; gap: 4px 12px; min-width: 190px; padding: 18px 26px 18px 22px; font-size: 14px; letter-spacing: .1em; border-color: color-mix(in srgb, var(--do-blue-orbit) 35%, var(--filete)); color: var(--texto-2); background: color-mix(in srgb, var(--do-night) 70%, transparent); }
+.etapas .tab::before { display: none; }
+.etapas .tab-num { font-family: var(--font-mono); font-weight: 500; font-size: 12px; color: var(--senal); letter-spacing: 0; }
+.etapas .tab-n { font-size: 15px; }
+.etapas .tab:hover { border-color: var(--senal); color: var(--texto); }
+.etapas .tab.on { color: var(--texto); border-color: var(--senal); background: color-mix(in srgb, var(--do-blue-orbit) 22%, var(--do-night-2)); }
+.etapas .tab.visto:not(.on) .tab-n::after { content: " ✓"; color: var(--senal); }
+.etapas .tab.siguiente:not(.on) { animation: etapa-luz 2.2s ease-in-out infinite; }
+@media (max-width: 859px) {
+  .etapas .tab { min-width: 0; flex: 1 1 auto; padding: 14px 16px; }
+  .etapas .tab-n { font-size: 13px; }
+  #invita-03 { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; }
+  #invita-03 .invita-fin { grid-column: 1 / -1; margin-left: 0; }
+}
+@keyframes etapa-luz { 0%, 100% { color: var(--texto-3); border-color: var(--filete); background: transparent; } 45% { color: var(--texto); border-color: color-mix(in srgb, var(--do-blue-orbit) 70%, transparent); background: color-mix(in srgb, var(--do-blue-orbit) 10%, var(--do-night-2)); } }
+@keyframes etapa-punto { 0%, 100% { background: transparent; box-shadow: none; } 45% { background: var(--senal); border-color: var(--senal); box-shadow: 0 0 0 4px color-mix(in srgb, var(--do-blue-orbit) 25%, transparent); } }
+@media (prefers-reduced-motion: reduce) {
+  .etapas .tab { animation: none !important; }
+  .scrub .w, .hist-scrub .w { transition: none !important; }
+}
+
+/* ¿Por qué nosotros?: instrucción paso a paso sobre los botones de cada prueba */
+.pv-guia { display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 10px; color: var(--senal); font-size: 11px; border-left: 2px solid var(--senal); background: color-mix(in srgb, var(--do-blue-orbit) 9%, transparent); }
+.pv-botones, .pv-guia + .pv-botones { padding-top: 0; }
+.pv-guia::before { content: "▸"; display: inline-block; animation: empuja 1.1s var(--ease-out) infinite; }
+.pv-guia.lista { color: var(--texto-3); border-left-color: var(--filete); background: none; }
+.pv-guia.lista::before { content: "✓"; animation: none; color: var(--senal); }
+@media (prefers-reduced-motion: reduce) { .pv-guia::before { animation: none; } }
+
+/* «Nos diferenciamos en» como recorrido (pedido de Vicente, 2026-11-09): los cuatro
+   diferenciadores numerados arriba, se muestra una prueba a la vez y al terminarla
+   aparece el botón a la siguiente. Las terminadas llevan ✓. */
+.prueba[hidden] { display: none; }
+.nos-pruebas { gap: 22px; }
+.nos-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.nos-paso { display: grid; gap: 6px; align-content: start; text-align: left; padding: 12px 14px; cursor: pointer; color: var(--texto-3); background: color-mix(in srgb, var(--do-night) 70%, transparent); border: 1px solid var(--filete); clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px)); transition: color .35s, border-color .35s, background .35s; }
+.nos-paso:hover { border-color: color-mix(in srgb, var(--do-blue-orbit) 60%, transparent); color: var(--texto); }
+.nos-paso:focus-visible { outline: 2px solid var(--senal); outline-offset: -4px; }
+.nos-paso.on { color: var(--texto); border-color: var(--senal); background: color-mix(in srgb, var(--do-blue-orbit) 18%, var(--do-night-2)); }
+.nos-paso-num { font-family: var(--font-mono); font-size: 10.5px; color: var(--senal); }
+.nos-paso.lista .nos-paso-num::after { content: "  ✓ probado"; }
+.nos-paso-t { font-family: var(--font-display); font-weight: 600; font-size: 13.5px; line-height: 1.3; }
+.sig-prueba { justify-self: start; margin-top: 6px; color: var(--texto); animation: invitar-borde 2.2s var(--ease-out) infinite; }
+.sig-prueba span { color: var(--senal); }
+@media (max-width: 520px) { .nos-nav { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .sig-prueba { animation: none; } }
+
+/* Pulso para guiar el orden (pedido de Vicente, 2026-11-09): en «Nos diferenciamos en»
+   pulsa la próxima tarjeta y, dentro de cada prueba, el próximo paso. Si tocas un paso
+   fuera de orden, el botón tiembla en rojo y el registro explica por qué. */
+@keyframes pulso-paso {
+  0%, 100% { transform: scale(1); border-color: color-mix(in srgb, var(--do-blue-orbit) 45%, var(--filete)); background: var(--do-night-2); }
+  50% { transform: scale(1.045); border-color: var(--senal); background: color-mix(in srgb, var(--do-blue-orbit) 30%, var(--do-night-2)); color: var(--texto); }
+}
+.mini.siguiente { animation: pulso-paso 1.4s ease-in-out infinite; }
+.nos-paso.siguiente { animation: pulso-paso 1.6s ease-in-out infinite; }
+@keyframes rechazo { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+.mini.rechazo { animation: rechazo .5s ease-in-out; border-color: var(--do-warning); }
+
+/* Tarjetas del recorrido más grandes */
+.nos-nav { gap: 10px; }
+.nos-paso { gap: 8px; padding: 18px 20px 20px; min-height: 104px; }
+.nos-paso-num { font-size: 12px; }
+.nos-paso-t { font-size: clamp(15px, 1.35vw, 18px); line-height: 1.28; }
+
+@media (prefers-reduced-motion: reduce) { .mini.siguiente, .nos-paso.siguiente, .mini.rechazo { animation: none !important; } }
